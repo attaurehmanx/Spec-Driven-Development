@@ -1,0 +1,5 @@
+{
+  "framework": "docusaurus",
+  "buildCommand": "cd Physical-AI-and-Humanoid-Robotics && npm install && npm run build",
+  "outputDirectory": "Physical-AI-and-Humanoid-Robotics/build"
+}
