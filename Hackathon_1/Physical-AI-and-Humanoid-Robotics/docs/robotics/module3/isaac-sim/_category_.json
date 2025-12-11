@@ -1,0 +1,8 @@
+{
+  "label": "Isaac Sim Topics: Simulation and Synthetic Data",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "Learn about Isaac Sim for robotics simulation, photorealistic rendering, and synthetic data generation."
+  }
+}

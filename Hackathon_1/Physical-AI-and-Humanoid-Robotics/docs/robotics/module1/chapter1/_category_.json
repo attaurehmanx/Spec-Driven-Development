@@ -1,0 +1,8 @@
+{
+  "label": "Chapter 1: ROS 2 Communication Basics",
+  "position": 1,
+  "link": {
+    "type": "generated-index",
+    "description": "Learn the fundamentals of ROS 2 communication including nodes, topics, and services."
+  }
+}

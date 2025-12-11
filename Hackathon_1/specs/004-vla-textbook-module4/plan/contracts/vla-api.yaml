@@ -1,0 +1,308 @@
+openapi: 3.0.0
+info:
+  title: Vision-Language-Action (VLA) System API
+  description: API for integrating Vision, Language, and Action components in robotics
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  /vla/process_command:
+    post:
+      summary: Process a natural language command and generate action plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VLACommand'
+      responses:
+        '200':
+          description: Action plan generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionPlan'
+        '400':
+          description: Invalid command or processing error
+  /vla/vision/observe:
+    get:
+      summary: Get current vision observation from environment
+      responses:
+        '200':
+          description: Current vision observation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VisionObservation'
+  /vla/action/execute:
+    post:
+      summary: Execute an action plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActionPlan'
+      responses:
+        '200':
+          description: Action plan execution started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionStatus'
+        '400':
+          description: Invalid action plan or execution error
+  /vla/state:
+    get:
+      summary: Get current robot state
+      responses:
+        '200':
+          description: Current robot state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RobotState'
+components:
+  schemas:
+    VLACommand:
+      type: object
+      properties:
+        command_text:
+          type: string
+          description: Natural language command text
+          example: "Go to the kitchen and pick up the red cup"
+        command_type:
+          type: string
+          enum: [NAVIGATION, MANIPULATION, PERCEPTION, MISC]
+          description: Type of command
+        target_object:
+          type: string
+          description: Object the command refers to
+        target_location:
+          type: string
+          description: Location for navigation commands
+        confidence:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: Confidence in command interpretation
+      required:
+        - command_text
+        - command_type
+        - confidence
+    VisionObservation:
+      type: object
+      properties:
+        objects_detected:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectInfo'
+        environment_map:
+          type: object
+          description: Occupancy grid map of environment
+        camera_feed:
+          type: string
+          format: byte
+          description: Base64 encoded image data
+        depth_data:
+          type: string
+          format: byte
+          description: Point cloud data
+        timestamp:
+          type: string
+          format: date-time
+          description: When observation was made
+    ObjectInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Object name/class
+          example: "red cup"
+        confidence:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: Detection confidence
+        position:
+          $ref: '#/components/schemas/Vector3'
+        bounding_box:
+          $ref: '#/components/schemas/BoundingBox2D'
+        properties:
+          type: object
+          additionalProperties: true
+          description: Additional object properties
+      required:
+        - name
+        - confidence
+        - position
+    Vector3:
+      type: object
+      properties:
+        x:
+          type: number
+          format: float
+        y:
+          type: number
+          format: float
+        z:
+          type: number
+          format: float
+      required:
+        - x
+        - y
+        - z
+    BoundingBox2D:
+      type: object
+      properties:
+        x_min:
+          type: number
+          format: float
+        y_min:
+          type: number
+          format: float
+        x_max:
+          type: number
+          format: float
+        y_max:
+          type: number
+          format: float
+      required:
+        - x_min
+        - y_min
+        - x_max
+        - y_max
+    ActionPlan:
+      type: object
+      properties:
+        plan_id:
+          type: string
+          description: Unique identifier for the plan
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionStep'
+        status:
+          type: string
+          enum: [PENDING, EXECUTING, COMPLETED, FAILED]
+          description: Current status of the plan
+        created_at:
+          type: string
+          format: date-time
+        estimated_duration:
+          type: number
+          format: float
+          description: Estimated time to complete in seconds
+      required:
+        - plan_id
+        - actions
+        - status
+        - created_at
+    ActionStep:
+      type: object
+      properties:
+        action_type:
+          type: string
+          enum: [NAVIGATE, GRASP, DETECT, SPEAK, WAIT]
+          description: Type of action
+        parameters:
+          type: object
+          additionalProperties: true
+          description: Action-specific parameters
+        preconditions:
+          type: array
+          items:
+            type: string
+          description: Conditions that must be true
+        effects:
+          type: array
+          items:
+            type: string
+          description: Expected outcomes
+        timeout:
+          type: number
+          format: float
+          description: Maximum time to complete in seconds
+      required:
+        - action_type
+        - parameters
+    RobotState:
+      type: object
+      properties:
+        position:
+          $ref: '#/components/schemas/Pose'
+        battery_level:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: Battery charge level
+        gripper_status:
+          type: string
+          enum: [OPEN, CLOSED, UNKNOWN]
+          description: Gripper state
+        current_task:
+          type: string
+          description: Currently executing task
+        sensors_active:
+          type: object
+          additionalProperties: true
+          description: Status of various sensors
+        timestamp:
+          type: string
+          format: date-time
+          description: When state was updated
+      required:
+        - position
+        - battery_level
+        - timestamp
+    Pose:
+      type: object
+      properties:
+        position:
+          $ref: '#/components/schemas/Vector3'
+        orientation:
+          type: object
+          properties:
+            x:
+              type: number
+              format: float
+            y:
+              type: number
+              format: float
+            z:
+              type: number
+              format: float
+            w:
+              type: number
+              format: float
+          required:
+            - x
+            - y
+            - z
+            - w
+    ExecutionStatus:
+      type: object
+      properties:
+        execution_id:
+          type: string
+          description: Unique identifier for execution
+        status:
+          type: string
+          enum: [QUEUED, EXECUTING, COMPLETED, FAILED, CANCELLED]
+          description: Current execution status
+        progress:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: Progress of execution
+        message:
+          type: string
+          description: Additional status information
+      required:
+        - execution_id
+        - status

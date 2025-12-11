@@ -1,0 +1,8 @@
+{
+  "label": "Chapter 1: AI Perception Fundamentals",
+  "position": 1,
+  "link": {
+    "type": "generated-index",
+    "description": "Learn how humanoid robots perceive their environment using advanced perception systems with Isaac ROS."
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "label": "Chapter 3: URDF and Humanoid Robot Modeling",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "Learn to create URDF files for humanoid robot modeling and visualize them in ROS 2 environments."
+  }
+}

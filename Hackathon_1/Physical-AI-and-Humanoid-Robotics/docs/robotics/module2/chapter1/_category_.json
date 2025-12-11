@@ -1,0 +1,8 @@
+{
+  "label": "Chapter 1: Physics Simulation Fundamentals in Gazebo",
+  "position": 1,
+  "link": {
+    "type": "generated-index",
+    "description": "Learn the fundamentals of physics simulation in Gazebo for digital twin applications with humanoid robots."
+  }
+}

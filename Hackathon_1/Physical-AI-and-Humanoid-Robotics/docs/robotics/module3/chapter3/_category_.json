@@ -1,0 +1,8 @@
+{
+  "label": "Chapter 3: Navigation and Path Planning",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "Learn about Nav2 for path planning and autonomous movement, including bipedal locomotion for humanoid robots."
+  }
+}

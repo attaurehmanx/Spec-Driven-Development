@@ -1,0 +1,8 @@
+{
+  "label": "Chapter 1: Vision & Perception Systems",
+  "position": 1,
+  "link": {
+    "type": "generated-index",
+    "description": "Learn about computer vision, object detection, environmental mapping, and perception integration in robotics."
+  }
+}

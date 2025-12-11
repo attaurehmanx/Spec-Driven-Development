@@ -1,0 +1,159 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* Modern robotics-themed color scheme */
+:root {
+  --ifm-color-primary: #1a73e8; /* Modern blue */
+  --ifm-color-primary-dark: #1557b0;
+  --ifm-color-primary-darker: #1452a3;
+  --ifm-color-primary-darkest: #104080;
+  --ifm-color-primary-light: #4285f4;
+  --ifm-color-primary-lighter: #669df6;
+  --ifm-color-primary-lightest: #8ab4f8;
+  --ifm-color-secondary: #5f6368; /* Gray for secondary elements */
+  --ifm-color-accent: #34a853; /* Green accent for robotics */
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(26, 115, 232, 0.15);
+  --ifm-card-background-color: #ffffff;
+  --ifm-card-border-radius: 12px;
+  --ifm-hero-background-color: #f8f9fa;
+  --ifm-navbar-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode with tech-inspired colors */
+[data-theme='dark'] {
+  --ifm-color-primary: #8ab4f8;
+  --ifm-color-primary-dark: #669df6;
+  --ifm-color-primary-darker: #4285f4;
+  --ifm-color-primary-darkest: #1a73e8;
+  --ifm-color-primary-light: #a4c7fa;
+  --ifm-color-primary-lighter: #bcd9fb;
+  --ifm-color-primary-lightest: #d6e7fc;
+  --ifm-color-secondary: #9aa0a6;
+  --ifm-color-accent: #67c28b;
+  --docusaurus-highlighted-code-line-bg: rgba(26, 115, 232, 0.3);
+  --ifm-card-background-color: #1e1e1e;
+  --ifm-hero-background-color: #121212;
+  --ifm-navbar-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Enhanced typography */
+.hero__title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 996px) {
+  .hero__title {
+    font-size: 2.5rem;
+  }
+}
+
+/* Modern button styles */
+.button {
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Card styling for features */
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Enhanced code blocks */
+.code-block {
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+/* Modern navbar */
+.navbar {
+  box-shadow: var(--ifm-navbar-shadow);
+  padding: 0.75rem 0;
+}
+
+/* Footer styling */
+.footer {
+  background-color: var(--ifm-hero-background-color);
+  padding: 3rem 0 2rem;
+}
+
+/* Custom feature section styling */
+.features {
+  padding: 4rem 0;
+  background-color: var(--ifm-hero-background-color);
+}
+
+/* Homepage banner */
+.heroBanner {
+  padding: 5rem 0;
+  background: linear-gradient(135deg, var(--ifm-color-primary-lightest) 0%, #e3f2fd 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme='dark'] .heroBanner {
+  background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+}
+
+/* Enhanced buttons section */
+.buttons {
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Custom animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.heroBanner > .container {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+/* Grid layout for features */
+.row {
+  gap: 2rem;
+}
+
+.col {
+  margin-bottom: 2rem;
+}
+
+/* Custom highlight */
+.docusaurus-highlight-code-line {
+  background-color: rgba(0, 0, 0, 0.1);
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
+}
+
+[data-theme='dark'] .docusaurus-highlight-code-line {
+  background-color: rgba(0, 0, 0, 0.3);
+}

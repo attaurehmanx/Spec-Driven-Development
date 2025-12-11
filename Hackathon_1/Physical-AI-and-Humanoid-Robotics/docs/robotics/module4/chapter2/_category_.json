@@ -1,0 +1,8 @@
+{
+  "label": "Chapter 2: Language Processing & Planning",
+  "position": 2,
+  "link": {
+    "type": "generated-index",
+    "description": "Learn about natural language understanding, Whisper integration, LLM-based planning, and decision making in robotics."
+  }
+}

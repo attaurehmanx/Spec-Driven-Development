@@ -1,0 +1,94 @@
+# Physics Configuration for Gazebo Simulation
+# This file defines common physics parameters used in Gazebo simulations
+
+simulation_parameters:
+  # Time step configuration
+  max_step_size: 0.001              # Maximum simulation step size in seconds
+  real_time_factor: 1.0             # Target real-time factor (1.0 = real-time)
+  update_rate: 1000                 # Physics update rate in Hz
+
+  # Solver parameters
+  solver:
+    type: "ode"                     # Physics engine type (ode, bullet, dart)
+    iterations: 10                  # Number of solver iterations per step
+    sor: 1.3                        # Successive Over-Relaxation parameter
+
+  # Constraint parameters
+  constraints:
+    cfm: 0.0                        # Constraint Force Mixing parameter
+    erp: 0.2                        # Error Reduction Parameter
+    max_correcting_vel: 100.0       # Maximum contact correcting velocity
+    surface_layer: 0.001            # Contact surface layer thickness
+
+# Default material properties
+default_materials:
+  ground_plane:
+    mu: 1.0                         # Static friction coefficient
+    mu2: 1.0                        # Secondary friction coefficient
+    kp: 1000000.0                   # Contact stiffness
+    kd: 1.0                         # Contact damping
+
+  robot_body:
+    mu: 0.8                         # Static friction coefficient
+    mu2: 0.8                        # Secondary friction coefficient
+    kp: 1000000.0                   # Contact stiffness
+    kd: 1.0                         # Contact damping
+
+  robot_foot:
+    mu: 1.2                         # Static friction coefficient (higher for better grip)
+    mu2: 1.2                        # Secondary friction coefficient
+    kp: 1000000.0                   # Contact stiffness
+    kd: 1.0                         # Contact damping
+
+# Gravity settings
+gravity:
+  x: 0.0                           # Gravity in X direction (m/s^2)
+  y: 0.0                           # Gravity in Y direction (m/s^2)
+  z: -9.8                          # Gravity in Z direction (m/s^2)
+
+# Environment settings
+environment:
+  # Wind parameters (optional)
+  wind:
+    enabled: false
+    linear_velocity: [0.5, 0.0, 0.0]  # Wind velocity vector [x, y, z] in m/s
+
+  # Atmospheric parameters
+  atmosphere:
+    temperature: 288.15             # Temperature in Kelvin (288.15K = 15°C)
+    pressure: 101325.0              # Pressure in Pascals (1 atm)
+
+# Robot-specific physics parameters
+robot_physics:
+  humanoid:
+    # Mass scaling factor for all links (multiplier)
+    mass_scale: 1.0
+
+    # Joint damping parameters
+    joint_damping:
+      hip: 0.5                      # Damping for hip joints
+      knee: 0.3                     # Damping for knee joints
+      ankle: 0.2                    # Damping for ankle joints
+      shoulder: 0.4                 # Damping for shoulder joints
+      elbow: 0.2                    # Damping for elbow joints
+
+    # Joint friction parameters
+    joint_friction:
+      hip: 0.1                      # Static friction for hip joints
+      knee: 0.1                     # Static friction for knee joints
+      ankle: 0.2                    # Static friction for ankle joints (higher for stability)
+      shoulder: 0.1                 # Static friction for shoulder joints
+      elbow: 0.1                    # Static friction for elbow joints
+
+# Performance settings
+performance:
+  # Enable/disable various simulation features for performance
+  enable_contact_surface: true      # Enable detailed contact surface information
+  enable_logging: false             # Enable physics logging (performance impact)
+  enable_visualization: true        # Enable physics visualization in GUI
+
+# Safety limits
+safety_limits:
+  max_velocity: 10.0               # Maximum allowed joint velocity (rad/s)
+  max_effort: 100.0                # Maximum allowed joint effort (N or Nm)
+  max_contact_force: 1000.0        # Maximum contact force before warning

@@ -1,0 +1,8 @@
+{
+  "label": "Module 4: Vision-Language-Action (VLA) for Physical AI & Humanoid Robotics",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "Learn about the convergence of robotics, perception, and large language models. Understand how robots interpret language, understand their environment, and translate commands into real-world actions."
+  }
+}

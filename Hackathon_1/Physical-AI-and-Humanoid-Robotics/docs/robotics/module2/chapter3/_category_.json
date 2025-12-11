@@ -1,0 +1,8 @@
+{
+  "label": "Chapter 3: Sensor Simulation and ROS 2 Integration",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "Implement sensor simulation pipelines with LiDAR, IMU, and depth cameras integrated with ROS 2."
+  }
+}

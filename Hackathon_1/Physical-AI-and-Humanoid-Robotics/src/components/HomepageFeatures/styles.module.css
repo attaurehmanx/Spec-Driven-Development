@@ -1,0 +1,137 @@
+.features {
+  padding: 4rem 0;
+  width: 100%;
+  background-color: var(--ifm-hero-background-color);
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  width: 100%;
+}
+
+.sectionTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--ifm-color-primary);
+}
+
+[data-theme='dark'] .sectionTitle {
+  color: white;
+}
+
+.sectionSubtitle {
+  font-size: 1.2rem;
+  color: var(--ifm-color-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+[data-theme='dark'] .sectionSubtitle {
+  color: white;
+}
+
+.featureCard {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  height: 100%;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='dark'] .featureCard {
+  background: var(--ifm-card-background-color);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.featureCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  border-color: var(--ifm-color-primary-lighter);
+}
+
+.featureSvg {
+  height: 120px;
+  width: 120px;
+  margin: 0 auto 1.5rem;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.1));
+  transition: transform 0.3s ease;
+}
+
+.featureSvg:hover {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.featureTitle {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--ifm-heading-color);
+}
+
+[data-theme='dark'] .featureTitle {
+  color: white;
+}
+
+.featureDescription {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ifm-color-secondary);
+}
+
+[data-theme='dark'] .featureDescription {
+  color: white;
+}
+
+/* Enhanced feature card styling */
+.features .col {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.features .text--center {
+  text-align: center !important;
+}
+
+.features .padding-horiz--md {
+  padding: 0 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 996px) {
+  .features {
+    padding: 3rem 0;
+  }
+
+  .sectionTitle {
+    font-size: 2rem;
+  }
+
+  .featureSvg {
+    height: 100px;
+    width: 100px;
+  }
+
+  .featureCard {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-size: 1.8rem;
+  }
+
+  .sectionSubtitle {
+    font-size: 1rem;
+  }
+
+  .featureTitle {
+    font-size: 1.2rem;
+  }
+}

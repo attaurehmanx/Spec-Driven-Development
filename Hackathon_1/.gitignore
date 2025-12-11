@@ -1,0 +1,83 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+env/
+ENV/
+.venv/
+.env/
+.ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git/modules/
+.pytest_cache/
+.hypothesis/
+
+# ROS 2
+*.log
+*.log.*
+build/
+install/
+log/
+*.lock
+.DS_Store
+
+# Docusaurus
+.docusaurus/
+.build/
+.dist/
+.temp/
+.cache-loader/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+.apdisk
+
+# Environment variables
+.env*
+!.env.example
+
+# Documentation
+docs/build/
+
+# Examples
+examples/*/__pycache__/
+examples/*/build/
+examples/*/*.log
