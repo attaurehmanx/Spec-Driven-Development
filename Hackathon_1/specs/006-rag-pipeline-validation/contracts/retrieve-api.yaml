@@ -1,0 +1,177 @@
+openapi: 3.0.0
+info:
+  title: RAG Pipeline Validation API
+  version: 1.0.0
+  description: API for validating RAG pipeline retrieval functionality
+
+paths:
+  /retrieve:
+    post:
+      summary: Perform semantic retrieval from Qdrant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryRequest'
+      responses:
+        '200':
+          description: Successful retrieval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrievalResult'
+        '400':
+          description: Invalid query request
+        '500':
+          description: Server error during retrieval
+
+  /validate:
+    post:
+      summary: Validate retrieval accuracy with test queries
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidationRequest'
+      responses:
+        '200':
+          description: Validation results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResult'
+        '500':
+          description: Server error during validation
+
+components:
+  schemas:
+    QueryRequest:
+      type: object
+      properties:
+        query_text:
+          type: string
+          description: Natural language query
+          example: "What is the ROS 2 architecture?"
+        filters:
+          type: object
+          description: Optional metadata filters
+          example: {"source": "manual", "type": "tutorial"}
+        top_k:
+          type: integer
+          description: Number of results to return
+          default: 5
+          minimum: 1
+          maximum: 100
+      required:
+        - query_text
+
+    RetrievedChunk:
+      type: object
+      properties:
+        content:
+          type: string
+          description: Retrieved content chunk
+          example: "ROS 2 is built on DDS (Data Distribution Service)..."
+        id:
+          type: string
+          description: Unique identifier for the chunk
+          example: "doc_123_chunk_456"
+        score:
+          type: number
+          format: float
+          description: Similarity score
+          example: 0.87
+        metadata:
+          $ref: '#/components/schemas/ChunkMetadata'
+
+    ChunkMetadata:
+      type: object
+      properties:
+        source:
+          type: string
+          description: Source document
+          example: "ros2_manual.pdf"
+        page:
+          type: integer
+          description: Page number in source
+          example: 15
+        type:
+          type: string
+          description: Content type
+          example: "architecture"
+
+    RetrievalResult:
+      type: object
+      properties:
+        query:
+          $ref: '#/components/schemas/QueryRequest'
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/RetrievedChunk'
+        search_time_ms:
+          type: number
+          format: float
+          description: Time taken for search
+          example: 120.5
+        total_candidates:
+          type: integer
+          description: Total candidates searched
+          example: 1000
+        validated:
+          type: boolean
+          description: Whether retrieval meets quality standards
+          example: true
+
+    ValidationRequest:
+      type: object
+      properties:
+        test_queries:
+          type: array
+          items:
+            type: string
+          description: List of test queries to validate
+          example: ["What is ROS 2?", "Explain DDS architecture"]
+        expected_results:
+          type: array
+          items:
+            type: object
+          description: Expected results for validation
+
+    ValidationResult:
+      type: object
+      properties:
+        test_name:
+          type: string
+          description: Name of the validation test
+          example: "accuracy_test"
+        query:
+          type: string
+          description: The test query used
+          example: "What is ROS 2?"
+        expected_results:
+          type: array
+          items:
+            type: string
+          description: Expected content
+          example: ["ROS 2", "DDS", "middleware"]
+        actual_results:
+          type: array
+          items:
+            $ref: '#/components/schemas/RetrievedChunk'
+        precision:
+          type: number
+          format: float
+          description: Precision score
+          example: 0.85
+        recall:
+          type: number
+          format: float
+          description: Recall score
+          example: 0.78
+        success:
+          type: boolean
+          description: Whether validation passed
+          example: true

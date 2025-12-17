@@ -1,0 +1,325 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "RAG Query API",
+    "description": "API for querying documentation using RAG (Retrieval Augmented Generation)",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+      "description": "Production server"
+    },
+    {
+      "url": "https://staging-api.example.com",
+      "description": "Staging server"
+    }
+  ],
+  "paths": {
+    "/v1/query": {
+      "post": {
+        "summary": "Submit a query to the RAG system",
+        "description": "Process a user query against documentation and return a grounded response with citations",
+        "operationId": "queryDocumentation",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryRequest"
+              },
+              "examples": {
+                "simpleQuery": {
+                  "summary": "Simple query example",
+                  "value": {
+                    "query": "How do I configure ROS 2 parameters?",
+                    "selected_text": "",
+                    "session_id": "550e8400-e29b-41d4-a716-446655440000"
+                  }
+                },
+                "queryWithSelection": {
+                  "summary": "Query with selected text example",
+                  "value": {
+                    "query": "Explain this configuration in more detail",
+                    "selected_text": "parameter_namespace: my_robot parameters: {joint_limit: 10.0, max_velocity: 5.0}",
+                    "session_id": "550e8400-e29b-41d4-a716-446655440000"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful query response with citations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryResponse"
+                },
+                "examples": {
+                  "successResponse": {
+                    "summary": "Successful response example",
+                    "value": {
+                      "answer": "To configure ROS 2 parameters, you can use the parameter_namespace approach. The parameters are defined in a dictionary format with keys like joint_limit and max_velocity. You can set these parameters at launch time or dynamically during runtime using the parameter client.",
+                      "citations": [
+                        {
+                          "document_id": "doc-ros2-params-001",
+                          "title": "ROS 2 Parameter Configuration Guide",
+                          "url": "/docs/ros2/parameters/config",
+                          "text_snippet": "Parameters in ROS 2 can be configured using parameter_namespace which allows grouping related parameters...",
+                          "relevance_score": 0.92
+                        },
+                        {
+                          "document_id": "doc-ros2-best-practices-045",
+                          "title": "ROS 2 Best Practices",
+                          "url": "/docs/ros2/best-practices/parameters",
+                          "text_snippet": "When setting parameters, consider using YAML files for complex configurations and ensure proper validation...",
+                          "relevance_score": 0.87
+                        }
+                      ],
+                      "query_id": "query-12345-abcde",
+                      "timestamp": "2025-12-15T10:30:00.000Z",
+                      "metadata": {
+                        "processing_time_ms": 1250,
+                        "model_used": "claude-sonnet-4-5"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid query format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Query"
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API key for authentication"
+      }
+    },
+    "schemas": {
+      "QueryRequest": {
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The user's question or query text",
+            "minLength": 1,
+            "maxLength": 2000,
+            "example": "How do I configure ROS 2 parameters?"
+          },
+          "selected_text": {
+            "type": "string",
+            "description": "Text selected by the user on the page",
+            "maxLength": 5000,
+            "default": "",
+            "example": "parameter_namespace: my_robot parameters: {joint_limit: 10.0, max_velocity: 5.0}"
+          },
+          "session_id": {
+            "type": "string",
+            "description": "Unique identifier for the conversation session",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional context information",
+            "additionalProperties": true
+          }
+        }
+      },
+      "QueryResponse": {
+        "type": "object",
+        "required": [
+          "answer",
+          "citations",
+          "query_id",
+          "timestamp"
+        ],
+        "properties": {
+          "answer": {
+            "type": "string",
+            "description": "The AI-generated response to the query",
+            "minLength": 1,
+            "maxLength": 10000,
+            "example": "To configure ROS 2 parameters, you can use the parameter_namespace approach..."
+          },
+          "citations": {
+            "type": "array",
+            "description": "List of source documents referenced",
+            "maxItems": 20,
+            "items": {
+              "$ref": "#/components/schemas/Citation"
+            }
+          },
+          "query_id": {
+            "type": "string",
+            "description": "Unique identifier for this query",
+            "pattern": "^[a-zA-Z0-9-]+$",
+            "example": "query-12345-abcde"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp of response generation",
+            "format": "date-time",
+            "example": "2025-12-15T10:30:00.000Z"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional response metadata",
+            "additionalProperties": true
+          }
+        }
+      },
+      "Citation": {
+        "type": "object",
+        "required": [
+          "document_id",
+          "title",
+          "url",
+          "text_snippet",
+          "relevance_score"
+        ],
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "description": "Unique identifier of the source document",
+            "example": "doc-ros2-params-001"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the source document",
+            "example": "ROS 2 Parameter Configuration Guide"
+          },
+          "url": {
+            "type": "string",
+            "description": "URL to access the source document",
+            "format": "uri",
+            "example": "/docs/ros2/parameters/config"
+          },
+          "text_snippet": {
+            "type": "string",
+            "description": "Relevant text snippet from the source",
+            "minLength": 10,
+            "maxLength": 1000,
+            "example": "Parameters in ROS 2 can be configured using parameter_namespace which allows grouping related parameters..."
+          },
+          "relevance_score": {
+            "type": "number",
+            "description": "Score indicating relevance",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "example": 0.92
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error_code",
+          "message",
+          "timestamp"
+        ],
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "description": "Machine-readable error code",
+            "pattern": "^ERROR_[A-Z_]+$",
+            "example": "ERROR_INVALID_QUERY"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error description",
+            "maxLength": 500,
+            "example": "Query must be between 1 and 2000 characters"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional error details",
+            "additionalProperties": true
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp of error",
+            "format": "date-time",
+            "example": "2025-12-15T10:30:00.000Z"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "APIKeyHeader": {
+        "name": "X-API-Key",
+        "in": "header",
+        "required": true,
+        "description": "API key for authentication",
+        "schema": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Query",
+      "description": "Documentation query endpoints"
+    }
+  ]
+}

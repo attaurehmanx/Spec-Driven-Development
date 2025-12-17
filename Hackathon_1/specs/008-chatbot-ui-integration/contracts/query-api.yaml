@@ -1,0 +1,84 @@
+# API Contract: RAG Chatbot Backend Integration
+
+## Query Endpoint
+
+### POST /api/query
+Submit a question to the RAG system and receive a response.
+
+#### Request
+```json
+{
+  "question": "string (required) - The user's question",
+  "selectedText": "string (optional) - Selected text from current page for context"
+}
+```
+
+#### Response (Success)
+**Status**: 200 OK
+```json
+{
+  "response": "string - The answer from the RAG system",
+  "sources": [
+    {
+      "title": "string - Source document title",
+      "url": "string - Source document URL",
+      "content": "string - Relevant content snippet"
+    }
+  ],
+  "timestamp": "string (optional) - Server-side timestamp of response"
+}
+```
+
+#### Response (Error)
+**Status**: 400 Bad Request or 500 Internal Server Error
+```json
+{
+  "error": "string - Error message",
+  "code": "string (optional) - Error code",
+  "details": "object (optional) - Additional error details"
+}
+```
+
+#### Example Request
+```json
+{
+  "question": "What are the key components of the ROS 2 architecture?",
+  "selectedText": "The ROS 2 architecture consists of nodes, topics, services, and actions."
+}
+```
+
+#### Example Response
+```json
+{
+  "response": "The key components of the ROS 2 architecture include nodes (processes that perform computation), topics (named buses over which nodes exchange messages), services (request/reply communication pattern), and actions (goal-oriented communication pattern).",
+  "sources": [
+    {
+      "title": "ROS 2 Architecture Guide",
+      "url": "/docs/ros2/architecture",
+      "content": "ROS 2 uses a distributed architecture with nodes communicating via topics, services, and actions."
+    }
+  ]
+}
+```
+
+## Health Check Endpoint
+
+### GET /api/health
+Check if the RAG backend is available.
+
+#### Response
+**Status**: 200 OK
+```json
+{
+  "status": "ok",
+  "timestamp": "string - Current server time"
+}
+```
+
+**Status**: 503 Service Unavailable
+```json
+{
+  "status": "unavailable",
+  "error": "string - Error message"
+}
+```
