@@ -8,7 +8,7 @@ import styles from './ChatbotUI.module.css';
  * A minimal React component for interacting with the RAG backend
  */
 const ChatbotUI = ({
-  backendUrl = (typeof process !== 'undefined' && process.env) ? process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000' : 'http://localhost:8000',
+  backendUrl = (typeof process !== 'undefined' && process.env) ? process.env.REACT_APP_BACKEND_URL || 'http://localhost:7860' : 'http://localhost:7860',
   placeholder = 'Ask a question about the content...',
   showSelectedTextHint = true
 }) => {

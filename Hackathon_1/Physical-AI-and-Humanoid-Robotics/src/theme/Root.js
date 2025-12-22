@@ -1,13 +1,10 @@
 import React from 'react';
-import FloatingChatbot from '../components/FloatingChatbot/FloatingChatbot';
+import Root from '../components/Root';
 
-const Root = ({children}) => {
+export default function ThemeRoot({ children }) {
   return (
-    <>
+    <Root>
       {children}
-      <FloatingChatbot />
-    </>
+    </Root>
   );
-};
-
-export default Root;
+}

@@ -10,7 +10,7 @@
  * @param {string} backendUrl - The URL of the backend API
  * @returns {Promise<Object>} The response from the backend
  */
-export const sendQuery = async (question, selectedText = '', backendUrl = (typeof process !== 'undefined' && process.env) ? process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000' : 'http://localhost:8000') => {
+export const sendQuery = async (question, selectedText = '', backendUrl = (typeof process !== 'undefined' && process.env) ? process.env.REACT_APP_BACKEND_URL || 'http://localhost:7860' : 'http://localhost:7860') => {
   try {
     // Construct the request body based on backend API contract
     const requestBody = {
@@ -68,7 +68,7 @@ export const sendQuery = async (question, selectedText = '', backendUrl = (typeo
  * @param {string} backendUrl - The URL of the backend API
  * @returns {Promise<boolean>} True if backend is healthy, false otherwise
  */
-export const checkHealth = async (backendUrl = (typeof process !== 'undefined' && process.env) ? process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000' : 'http://localhost:8000') => {
+export const checkHealth = async (backendUrl = (typeof process !== 'undefined' && process.env) ? process.env.REACT_APP_BACKEND_URL || 'http://localhost:7860' : 'http://localhost:7860') => {
   try {
     // Use the backend URL directly - for production deployment
     const healthUrl = `${backendUrl}/health`;
