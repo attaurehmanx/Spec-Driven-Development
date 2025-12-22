@@ -13,6 +13,8 @@ export default function SignUpPage() {
         padding: '2rem'
       }}>
         <SignUp
+          signInUrl="/sign-in"
+          fallbackRedirectUrl="/"
           appearance={{
             elements: {
               card: 'shadow-lg',
