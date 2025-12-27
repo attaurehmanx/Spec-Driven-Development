@@ -97,6 +97,78 @@
   padding: 3rem 0 2rem;
 }
 
+/* Footer project info styling */
+.footer-project-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.footer-project-description {
+  font-size: 0.9rem;
+  color: var(--ifm-color-secondary);
+  line-height: 1.5;
+  margin-bottom: 0;
+  display: block;
+}
+
+/* Footer social links styling */
+.footer-social-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.footer-social-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--ifm-color-emphasis-700);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.footer-social-link:hover {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.footer-social-link svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  transition: transform 0.2s ease;
+}
+
+.footer-social-link:hover svg {
+  transform: scale(1.1);
+}
+
+/* Footer copyright styling */
+.footer--dark .footer__copyright {
+  color: var(--ifm-color-secondary);
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.85rem;
+}
+
+/* Responsive footer adjustments */
+@media (max-width: 996px) {
+  .footer {
+    padding: 2rem 0 1.5rem;
+  }
+
+  .footer__links {
+    margin-bottom: 1.5rem;
+  }
+
+  .footer__bottom {
+    text-align: center;
+  }
+}
+
 /* Custom feature section styling */
 .features {
   padding: 4rem 0;

@@ -1,0 +1,4 @@
+/docs/robotics/module1/chapter1/lesson1
+/docs/robotics/module2/chapter1/lesson1
+/docs/robotics/module3/chapter1/lesson1
+/docs/robotics/module4/chapter1/lesson1

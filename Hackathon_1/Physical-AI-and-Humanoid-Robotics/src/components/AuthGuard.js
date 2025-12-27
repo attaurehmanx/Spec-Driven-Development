@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { Redirect, Navigate } from '@docusaurus/router';
+import { Redirect } from '@docusaurus/router';
 import { useLocation } from '@docusaurus/router';
 
 // This component checks authentication after ClerkProvider is set up
@@ -32,10 +32,10 @@ export function AuthGuard({ children, publishableKey }) {
     const storedRedirectPath = localStorage.getItem('clerk_redirect_path');
     if (storedRedirectPath && storedRedirectPath !== '/sign-in' && storedRedirectPath !== '/sign-up') {
       localStorage.removeItem('clerk_redirect_path'); // Clean up
-      return <Navigate to={storedRedirectPath} />;
+      return <Redirect to={storedRedirectPath} />;
     }
     // Default redirect to home if no specific path
-    return <Navigate to="/" />;
+    return <Redirect to="/" />;
   }
 
   // If user is not signed in and not on a public page, redirect to sign-in
