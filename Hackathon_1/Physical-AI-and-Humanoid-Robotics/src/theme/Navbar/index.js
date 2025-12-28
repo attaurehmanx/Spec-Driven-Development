@@ -10,19 +10,10 @@ function NavbarWrapper(props) {
   const shouldShowAuth = !location.pathname.startsWith('/sign-in') && !location.pathname.startsWith('/sign-up');
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div className="navbar-wrapper">
       <Navbar {...props} />
       {shouldShowAuth && (
-        <div style={{
-          position: 'absolute',
-          right: '150px', // Positioned to the left of GitHub and dark mode icons
-          top: '50%',
-          transform: 'translateY(-50%)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          height: '100%'
-        }}>
+        <div className="auth-overlay">
           <Authentication />
         </div>
       )}

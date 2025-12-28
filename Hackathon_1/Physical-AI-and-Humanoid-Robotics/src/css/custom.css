@@ -91,6 +91,39 @@
   padding: 0.75rem 0;
 }
 
+/* Wrapper for navbar and auth overlay */
+.navbar-wrapper {
+  position: relative;
+}
+
+/* Auth overlay positioning */
+.auth-overlay {
+  position: absolute;
+  right: 150px; /* Default position to account for GitHub and dark mode icons */
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  height: 100%;
+  z-index: 1000;
+}
+
+/* Responsive adjustments for auth overlay on smaller screens */
+@media (max-width: 996px) {
+  .auth-overlay {
+    position: absolute;
+    right: 1rem; /* Adjust position on smaller screens */
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+  }
+
+  /* Adjust navbar padding to account for mobile layout */
+  .navbar__items--right {
+    padding-right: 2rem;
+  }
+}
+
 /* Footer styling */
 .footer {
   background-color: var(--ifm-hero-background-color);
@@ -161,11 +194,48 @@
   }
 
   .footer__links {
-    margin-bottom: 1.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
   }
 
   .footer__bottom {
-    text-align: center;
+    text-align: left;
+  }
+
+  /* Better responsive handling for footer columns */
+  .footer__col {
+    margin-bottom: 2rem;
+    text-align: left;
+  }
+
+
+  /* Responsive adjustments for project info in footer */
+  .footer-project-title {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    word-break: break-word;
+  }
+
+  .footer-project-description {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    display: block;
+  }
+
+  /* Adjust social links for mobile */
+  .footer-social-link {
+    font-size: 0.8rem;
+    justify-content: flex-start;
+  }
+
+  .footer-social-link svg {
+    width: 14px;
+    height: 14px;
   }
 }
 
