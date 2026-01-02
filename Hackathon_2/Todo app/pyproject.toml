@@ -1,0 +1,17 @@
+[project]
+name = "todo-console-app"
+version = "0.1.0"
+description = "A simple todo console application"
+authors = [{name = "Developer", email = "dev@example.com"}]
+requires-python = ">=3.13"
+readme = "README.md"
+license = {text = "MIT"}
+
+[project.scripts]
+todo-app = "src.cli.main:main"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+]
