@@ -95,3 +95,5 @@ htmlcov/
 .dmypy.json
 dmypy.json
 nul
+
+.vercel
