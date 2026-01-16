@@ -264,7 +264,7 @@ const useAuth = (): UseAuthReturn => {
 
       // Update the user state with the new avatar URL
       if (response.avatar_url) {
-        setUser(prevUser => prevUser ? { ...prevUser, avatar: response.avatar_url } : null);
+        setUser((prevUser: any) => prevUser ? { ...prevUser, avatar: response.avatar_url } : null);
       }
 
       console.log('Avatar uploaded successfully:', response);

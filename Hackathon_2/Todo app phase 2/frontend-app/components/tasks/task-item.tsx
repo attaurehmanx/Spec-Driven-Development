@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Task } from '../../../types';
+import { Task } from '../../types';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardFooter } from '../ui/card';
 
@@ -51,10 +51,10 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete }) 
               </p>
             )}
             <div className="mt-2 flex items-center text-xs text-gray-500">
-              <span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
-              {task.updatedAt !== task.createdAt && (
+              <span>Created: {new Date(task.created_at).toLocaleDateString()}</span>
+              {task.updated_at !== task.created_at && (
                 <span className="ml-2">
-                  Updated: {new Date(task.updatedAt).toLocaleDateString()}
+                  Updated: {new Date(task.updated_at).toLocaleDateString()}
                 </span>
               )}
             </div>

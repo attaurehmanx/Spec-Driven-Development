@@ -6,7 +6,7 @@ import { Button } from '../ui/button';
 import Input from '../ui/input';
 import ErrorMessage from '../ui/error-message';
 import SuccessMessage from '../ui/success-message';
-import { TaskFormData } from '../../../types';
+import { TaskFormData } from '../../types';
 import useAuth from '../../hooks/use-auth';
 import { taskService } from '../../lib/api/task-service';
 
@@ -55,7 +55,7 @@ const TaskCreateForm: React.FC<TaskCreateFormProps> = ({ onSuccess, onError, onC
       setSuccess('Task created successfully!');
 
       // Call success callback with the new task ID
-      onSuccess?.(response.task.id);
+      onSuccess?.(response.id);
 
       // Reset form
       setFormData({

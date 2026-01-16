@@ -16,7 +16,7 @@ import {
 import useAuth from '../../hooks/use-auth';
 
 // Prevent SSR for components that cause hydration mismatches
-const ClientOnlyDropdown = ({ user, router, signOut }) => {
+const ClientOnlyDropdown = ({ user, router, signOut }: { user: any, router: any, signOut: () => Promise<void> }) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

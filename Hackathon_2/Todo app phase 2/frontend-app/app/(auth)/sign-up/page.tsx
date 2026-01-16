@@ -15,6 +15,8 @@ const SignUpPage: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    firstName: '',
+    lastName: '',
   });
   const [loading, setLoading] = useState(false);
 
@@ -43,7 +45,7 @@ const SignUpPage: React.FC = () => {
     setLoading(true);
 
     try {
-      await signUp(formData.email, formData.password);
+      await signUp(formData.email, formData.password, formData.firstName, formData.lastName);
       // Redirect to dashboard or sign-in page after successful signup
       router.push('/auth/sign-in');
     } catch (err) {
@@ -81,6 +83,26 @@ const SignUpPage: React.FC = () => {
               type="password"
               name="password"
               value={formData.password}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+
+            <Input
+              label="First Name"
+              type="text"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+
+            <Input
+              label="Last Name"
+              type="text"
+              name="lastName"
+              value={formData.lastName}
               onChange={handleChange}
               required
               fullWidth

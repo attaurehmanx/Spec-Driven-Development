@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Task } from '../../../types';
+import { Task } from '../../types';
 import { TaskItem } from './task-item';
 
 interface TaskListProps {

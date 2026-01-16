@@ -18,6 +18,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError }) => {
     email: '',
     password: '',
     confirmPassword: '',
+    firstName: '',
+    lastName: '',
   });
   const [loading, setLoading] = useState(false);
 
@@ -41,7 +43,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError }) => {
     setLoading(true);
 
     try {
-      await signUp(formData.email, formData.password);
+      await signUp(formData.email, formData.password, formData.firstName, formData.lastName);
       onSuccess?.();
     } catch (err) {
       onError?.((err as Error).message || 'Sign up failed');
@@ -69,6 +71,26 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSuccess, onError }) => {
         type="password"
         name="password"
         value={formData.password}
+        onChange={handleChange}
+        required
+        fullWidth
+      />
+
+      <Input
+        label="First Name"
+        type="text"
+        name="firstName"
+        value={formData.firstName}
+        onChange={handleChange}
+        required
+        fullWidth
+      />
+
+      <Input
+        label="Last Name"
+        type="text"
+        name="lastName"
+        value={formData.lastName}
         onChange={handleChange}
         required
         fullWidth

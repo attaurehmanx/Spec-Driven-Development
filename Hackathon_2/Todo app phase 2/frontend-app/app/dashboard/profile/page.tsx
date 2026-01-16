@@ -19,7 +19,7 @@ import {
 import { CameraIcon, PhoneIcon, MapPinIcon, CalendarIcon, UserIcon } from 'lucide-react';
 
 const ProfilePage = () => {
-  const { user, loading, updateUserProfile, uploadUserAvatar, deleteUserAccount, signOut } = useAuth();
+  const { user, isLoading, updateUserProfile, uploadUserAvatar, deleteUserAccount, signOut } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [firstName, setFirstName] = useState(user?.first_name || '');
   const [lastName, setLastName] = useState(user?.last_name || '');
@@ -114,7 +114,7 @@ const ProfilePage = () => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <ProtectedRoute>
         <div className="container mx-auto py-10">
