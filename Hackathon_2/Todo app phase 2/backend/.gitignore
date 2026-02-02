@@ -1,0 +1,63 @@
+# Binary files and uploads - ignore all uploaded avatars but keep default avatars
+/uploads/avatars/*
+!/uploads/avatars/default-avatar.png
+!/uploads/avatars/default-avatar.svg
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.bmp
+*.tiff
+*.ico
+
+# Database files
+*.db
+*.sqlite
+
+# Environment files (though .env should be in git for reference)
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
