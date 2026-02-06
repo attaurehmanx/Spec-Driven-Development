@@ -1,30 +1,15 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { UserSession, AuthUIState } from '../../../types';
 import { apiClient } from '../../services/api-client';
 import { tokenStorage } from '@/lib/token-storage';
-
-interface UserSession {
-  userId: string;
-  email: string;
-  token: string;
-  expiresAt: Date;
-  isLoggedIn: boolean;
-  isLoading: boolean;
-}
-
-interface AuthUIState {
-  loading: boolean;
-  error?: string;
-  successMessage?: string;
-  showPasswordReset: boolean;
-}
 
 interface AuthContextType {
   session: UserSession;
   authState: AuthUIState;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateSession: (session: Partial<UserSession>) => void;
 }
@@ -150,11 +135,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
+  const signUp = async (email: string, password: string) => {
     setAuthState((prev) => ({ ...prev, loading: true, error: undefined }));
 
     try {
-      const response = await apiClient.signUp(email, password, firstName, lastName);
+      const response = await apiClient.signUp(email, password);
 
       if (response.token) {
         const { token, user } = response;

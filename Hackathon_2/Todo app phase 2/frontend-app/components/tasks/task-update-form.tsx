@@ -6,7 +6,7 @@ import { Button } from '../ui/button';
 import Input from '../ui/input';
 import ErrorMessage from '../ui/error-message';
 import SuccessMessage from '../ui/success-message';
-import { Task } from '../../types';
+import { Task } from '../../../types';
 import useAuth from '../../hooks/use-auth';
 import { taskService } from '../../lib/api/task-service';
 
@@ -56,13 +56,13 @@ const TaskUpdateForm: React.FC<TaskUpdateFormProps> = ({ task, onSuccess, onErro
       setSuccess('Task updated successfully!');
 
       // Call success callback with the updated task
-      onSuccess?.(response);
+      onSuccess?.(response.task);
 
       // Reset form with new values
       setFormData({
-        title: response.title,
-        description: response.description || '',
-        completed: response.completed,
+        title: response.task.title,
+        description: response.task.description || '',
+        completed: response.task.completed,
       });
     } catch (err: any) {
       console.error('Error updating task:', err);

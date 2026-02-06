@@ -41,61 +41,11 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50 dark:from-slate-900 dark:via-purple-900/20 dark:to-slate-900 flex items-center justify-center relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-400/30 dark:bg-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-400/30 dark:bg-pink-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-400/20 dark:bg-cyan-600/10 rounded-full blur-3xl animate-pulse delay-500"></div>
-        </div>
-
-        {/* Loading content */}
-        <div className="relative z-10 text-center">
-          {/* Animated logo/icon */}
-          <div className="relative mb-8">
-            {/* Outer rotating ring */}
-            <div className="absolute inset-0 w-32 h-32 mx-auto">
-              <div className="w-full h-full border-4 border-purple-200 dark:border-purple-800 border-t-purple-600 dark:border-t-purple-400 rounded-full animate-spin"></div>
-            </div>
-
-            {/* Middle pulsing ring */}
-            <div className="absolute inset-0 w-32 h-32 mx-auto flex items-center justify-center">
-              <div className="w-24 h-24 border-4 border-pink-200 dark:border-pink-800 border-b-pink-600 dark:border-b-pink-400 rounded-full animate-spin" style={{animationDirection: 'reverse', animationDuration: '1.5s'}}></div>
-            </div>
-
-            {/* Center icon */}
-            <div className="relative w-32 h-32 mx-auto flex items-center justify-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-2xl shadow-purple-500/50 animate-pulse">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          {/* Loading text */}
-          <div className="space-y-3">
-            <h2 className="text-3xl font-extrabold bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 dark:from-purple-400 dark:via-pink-400 dark:to-cyan-400 bg-clip-text text-transparent animate-pulse">
-              Loading Dashboard
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-lg font-medium">
-              Preparing your workspace
-            </p>
-
-            {/* Animated dots */}
-            <div className="flex items-center justify-center gap-2 mt-4">
-              <div className="w-2 h-2 bg-purple-600 dark:bg-purple-400 rounded-full animate-bounce"></div>
-              <div className="w-2 h-2 bg-pink-600 dark:bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-              <div className="w-2 h-2 bg-cyan-600 dark:bg-cyan-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-            </div>
-          </div>
-
-          {/* Progress bar */}
-          <div className="mt-8 w-64 mx-auto">
-            <div className="h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 rounded-full animate-pulse" style={{width: '100%'}}></div>
-            </div>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-xl font-medium text-gray-700">Loading your dashboard...</p>
+          <p className="text-gray-500">Just a moment while we prepare your workspace</p>
         </div>
       </div>
     );
@@ -128,141 +78,126 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <h1 className="text-xl font-bold text-gray-900">Task Dashboard</h1>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+            </div>
+          </div>
+        </div>
+      </header>
+
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Overview - Interactive Clickable Cards */}
+        {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Total Tasks Card */}
-          <button
-            onClick={() => router.push('/dashboard/tasks')}
-            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600 to-purple-700 p-6 shadow-2xl shadow-purple-500/40 hover:shadow-purple-500/60 transition-all duration-300 hover:-translate-y-2 hover:scale-105 text-left cursor-pointer"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 13h.01M9 17h.01M12 7h.01M15 7h.01" />
                   </svg>
                 </div>
               </div>
-              <p className="text-white/90 text-xs font-bold uppercase tracking-wider mb-2">Total Tasks</p>
-              {statsLoading ? (
-                <p className="text-4xl font-extrabold text-white animate-pulse">...</p>
-              ) : (
-                <>
-                  <p className="text-4xl font-extrabold text-white mb-1">{stats.total}</p>
-                  <p className="text-xs text-white/70 font-medium">Click to view all</p>
-                </>
-              )}
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Total Tasks</p>
+                {statsLoading ? (
+                  <p className="text-3xl font-bold text-gray-900">...</p>
+                ) : (
+                  <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
+                )}
+              </div>
             </div>
-          </button>
+          </div>
 
-          {/* Completed Tasks Card */}
-          <button
-            onClick={() => router.push('/dashboard/tasks?filter=completed')}
-            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-600 to-green-700 p-6 shadow-2xl shadow-green-500/40 hover:shadow-green-500/60 transition-all duration-300 hover:-translate-y-2 hover:scale-105 text-left cursor-pointer"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
-              <p className="text-white/90 text-xs font-bold uppercase tracking-wider mb-2">Completed</p>
-              {statsLoading ? (
-                <p className="text-4xl font-extrabold text-white animate-pulse">...</p>
-              ) : (
-                <>
-                  <p className="text-4xl font-extrabold text-white mb-1">{stats.completed}</p>
-                  <p className="text-xs text-white/70 font-medium">
-                    {stats.total > 0 ? `${Math.round((stats.completed / stats.total) * 100)}% complete` : 'No tasks yet'}
-                  </p>
-                </>
-              )}
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Completed</p>
+                {statsLoading ? (
+                  <p className="text-3xl font-bold text-gray-900">...</p>
+                ) : (
+                  <p className="text-3xl font-bold text-gray-900">{stats.completed}</p>
+                )}
+              </div>
             </div>
-          </button>
+          </div>
 
-          {/* Pending Tasks Card */}
-          <button
-            onClick={() => router.push('/dashboard/tasks?filter=pending')}
-            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-600 to-pink-700 p-6 shadow-2xl shadow-pink-500/40 hover:shadow-pink-500/60 transition-all duration-300 hover:-translate-y-2 hover:scale-105 text-left cursor-pointer"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
-              <p className="text-white/90 text-xs font-bold uppercase tracking-wider mb-2">Pending</p>
-              {statsLoading ? (
-                <p className="text-4xl font-extrabold text-white animate-pulse">...</p>
-              ) : (
-                <>
-                  <p className="text-4xl font-extrabold text-white mb-1">{stats.pending}</p>
-                  <p className="text-xs text-white/70 font-medium">
-                    {stats.pending > 0 ? 'Needs attention' : 'All caught up!'}
-                  </p>
-                </>
-              )}
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Pending</p>
+                {statsLoading ? (
+                  <p className="text-3xl font-bold text-gray-900">...</p>
+                ) : (
+                  <p className="text-3xl font-bold text-gray-900">{stats.pending}</p>
+                )}
+              </div>
             </div>
-          </button>
+          </div>
         </div>
 
-        {/* Welcome Section - Compact & Action-Focused */}
-        <div className="relative overflow-hidden rounded-2xl glass-strong p-6 shadow-xl border-2 border-white/30 dark:border-white/20">
-          {/* Decorative gradient orbs */}
-          <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-3xl -mr-24 -mt-24"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-cyan-500/20 to-green-500/20 rounded-full blur-3xl -ml-24 -mb-24"></div>
-
-          <div className="relative z-10">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              {/* Left Side - Welcome Message */}
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/50">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Welcome Section */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-                    Welcome back, {user?.first_name || 'User'}!
-                  </h2>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                    Ready to tackle your tasks?
-                  </p>
-                </div>
+                <h2 className="text-2xl font-bold text-gray-900">Welcome to your dashboard</h2>
               </div>
+              <p className="text-gray-600 mb-6">
+                Manage your tasks efficiently and stay organized. Your personalized workspace awaits.
+              </p>
 
-              {/* Right Side - Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                {/* Primary CTA - Create Task */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button
-                  onClick={() => router.push('/dashboard/tasks/create')}
-                  className="group relative overflow-hidden bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white px-6 py-3 rounded-xl shadow-lg shadow-purple-500/50 hover:shadow-xl hover:shadow-purple-500/60 transition-all duration-300 transform hover:scale-105"
+                  onClick={() => router.push('/dashboard/tasks')}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white p-4 rounded-lg shadow-sm transition-all duration-200 transform hover:scale-105"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700"></div>
-                  <div className="relative z-10 flex items-center justify-center gap-2">
+                  <div className="flex items-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
-                    <span className="font-bold">Create Task</span>
+                    <span className="font-medium">View Tasks</span>
                   </div>
                 </button>
 
-                {/* Secondary CTA - View Tasks */}
                 <button
-                  onClick={() => router.push('/dashboard/tasks')}
-                  className="px-6 py-3 rounded-xl border-2 border-purple-500 dark:border-purple-400 bg-white/50 dark:bg-slate-800/50 hover:bg-purple-50 dark:hover:bg-slate-700 text-purple-700 dark:text-purple-300 font-bold shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                  onClick={() => router.push('/dashboard/tasks/create')}
+                  className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white p-6 rounded-lg shadow-sm transition-all duration-200 transform hover:scale-105"
                 >
-                  View All Tasks
+                  <div className="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    <span className="font-medium">Create Task</span>
+                  </div>
                 </button>
               </div>
             </div>

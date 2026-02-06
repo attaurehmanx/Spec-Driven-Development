@@ -19,7 +19,7 @@ import {
 import { CameraIcon, PhoneIcon, MapPinIcon, CalendarIcon, UserIcon } from 'lucide-react';
 
 const ProfilePage = () => {
-  const { user, isLoading, updateUserProfile, uploadUserAvatar, deleteUserAccount, signOut } = useAuth();
+  const { user, loading, updateUserProfile, uploadUserAvatar, deleteUserAccount, signOut } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [firstName, setFirstName] = useState(user?.first_name || '');
   const [lastName, setLastName] = useState(user?.last_name || '');
@@ -114,7 +114,7 @@ const ProfilePage = () => {
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <ProtectedRoute>
         <div className="container mx-auto py-10">
@@ -186,9 +186,7 @@ const ProfilePage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Personal Information */}
                 <div className="space-y-4">
-                  <div className="mb-3 px-3 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600">
-                    <h3 className="text-sm font-extrabold text-white uppercase tracking-wider">Personal Information</h3>
-                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Personal Information</h3>
 
                   {/* Full Name */}
                   <div className="space-y-2">
@@ -224,14 +222,14 @@ const ProfilePage = () => {
                         </div>
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-900 dark:text-gray-100">{user?.first_name} {user?.last_name}</p>
+                      <p className="text-sm text-gray-900">{user?.first_name} {user?.last_name}</p>
                     )}
                   </div>
 
                   {/* Email */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-500">Email Address</label>
-                    <p className="text-sm text-gray-900 dark:text-gray-100">{user?.email}</p>
+                    <p className="text-sm text-gray-900">{user?.email}</p>
                   </div>
 
                   {/* Phone */}
@@ -253,7 +251,7 @@ const ProfilePage = () => {
                         )}
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-900 dark:text-gray-100">{user?.phone || 'Not provided'}</p>
+                      <p className="text-sm text-gray-900">{user?.phone || 'Not provided'}</p>
                     )}
                   </div>
 
@@ -270,16 +268,14 @@ const ProfilePage = () => {
                         placeholder="Street, City, State"
                       />
                     ) : (
-                      <p className="text-sm text-gray-900 dark:text-gray-100">{user?.address || 'Not provided'}</p>
+                      <p className="text-sm text-gray-900">{user?.address || 'Not provided'}</p>
                     )}
                   </div>
                 </div>
 
                 {/* Account Information */}
                 <div className="space-y-4">
-                  <div className="mb-3 px-3 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600">
-                    <h3 className="text-sm font-extrabold text-white uppercase tracking-wider">Account Information</h3>
-                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Account Information</h3>
 
                   {/* Member Since */}
                   <div className="space-y-2">
@@ -287,11 +283,7 @@ const ProfilePage = () => {
                       <CalendarIcon className="w-4 h-4 mr-1" />
                       Member Since
                     </label>
-<<<<<<< HEAD
-                    <p className="text-sm text-gray-900 dark:text-gray-100">{user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</p>
-=======
                     <p className="text-sm text-gray-900">{user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Today'}</p>
->>>>>>> parent of bac3a21 ("Fix: Delete Button")
                   </div>
 
                   {/* Account Status */}
@@ -308,14 +300,6 @@ const ProfilePage = () => {
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-500">Account Actions</label>
                     <br />
-<<<<<<< HEAD
-                    <button
-                      className="mt-4 px-4 py-2 rounded-lg font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-200 dark:border-red-800 transition-all"
-                      onClick={() => confirm('Sign out?') && signOut()}
-                    >
-                      Sign out of session
-                    </button>
-=======
                     <Button
                       variant="outline"
                       className=""
@@ -327,7 +311,6 @@ const ProfilePage = () => {
                     >
                       Sign Out
                     </Button>
->>>>>>> parent of bac3a21 ("Fix: Delete Button")
                   </div>
 
                   {/* Profile Picture Upload */}
@@ -358,8 +341,8 @@ const ProfilePage = () => {
               <div className="pt-6 flex justify-end space-x-3">
                 {isEditing ? (
                   <>
-                    <button
-                      className="px-6 py-3 rounded-xl font-bold text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-slate-700 transition-all"
+                    <Button
+                      variant="outline"
                       onClick={() => {
                         setIsEditing(false);
                         setFirstName(user?.first_name || '');
@@ -375,83 +358,19 @@ const ProfilePage = () => {
                       }}
                     >
                       Cancel
-                    </button>
-                    <button
-                      className="px-6 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 shadow-lg shadow-purple-500/50 hover:shadow-xl transition-all"
-                      onClick={handleUpdateProfile}
-                    >
+                    </Button>
+                    <Button onClick={handleUpdateProfile}>
                       Save Changes
-                    </button>
+                    </Button>
                   </>
                 ) : (
-                  <button
-                    className="px-6 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 shadow-lg shadow-purple-500/50 hover:shadow-xl transition-all"
-                    onClick={() => setIsEditing(true)}
-                  >
+                  <Button onClick={() => setIsEditing(true)}>
                     Edit Profile
-                  </button>
+                  </Button>
                 )}
               </div>
             </CardContent>
 
-<<<<<<< HEAD
-            <CardFooter className="bg-red-50/50 dark:bg-red-900/20 border-t border-red-100 dark:border-red-800 p-8">
-  <div className="flex justify-between items-center w-full">
-    <div>
-      <h4 className="text-red-600 dark:text-red-400 font-bold">Danger Zone</h4>
-      <p className="text-sm text-gray-500 dark:text-gray-400">Permanently delete your account and data.</p>
-    </div>
-
-    {/* Trigger Button */}
-    <Button
-      variant="destructive"
-      onClick={() => setIsDeleteDialogOpen(true)}
-    >
-      Delete Account
-    </Button>
-
-    {/* Vercel-Safe Modal Overlay */}
-    {isDeleteDialogOpen && (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        {/* Backdrop */}
-        <div
-          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-          onClick={() => !isDeleting && setIsDeleteDialogOpen(false)}
-        />
-
-        {/* Modal Content */}
-        <div className="relative bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-200">
-          <div className="p-6">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Are you absolutely sure?</h3>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
-              This action cannot be undone. This will permanently delete your account
-              and remove your data from our servers.
-            </p>
-          </div>
-
-          <div className="bg-gray-50 dark:bg-slate-900 px-6 py-4 flex justify-end space-x-3">
-            <Button
-              variant="outline"
-              onClick={() => setIsDeleteDialogOpen(false)}
-              disabled={isDeleting}
-            >
-              Keep Account
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDeleteAccount}
-              disabled={isDeleting}
-            >
-              {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isDeleting ? 'Processing...' : 'Yes, Delete Everything'}
-            </Button>
-          </div>
-        </div>
-      </div>
-    )}
-  </div>
-</CardFooter>
-=======
             {/* Danger Zone */}
             <CardFooter className="bg-gray-50 border-t p-6">
               <div className="w-full">
@@ -492,7 +411,6 @@ const ProfilePage = () => {
                 </Dialog>
               </div>
             </CardFooter>
->>>>>>> parent of bac3a21 ("Fix: Delete Button")
           </Card>
         </div>
       </div>

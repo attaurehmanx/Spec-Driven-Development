@@ -410,18 +410,6 @@ class ApiClient {
     tokenStorage.clearTokens();
     return response;
   }
-
-  /**
-   * Send a chat message to the AI assistant
-   * @param {string} userId - Authenticated user's ID
-   * @param {Object} request - Chat request with message and optional conversation_id
-   * @param {string} request.message - User's message text (1-10,000 characters)
-   * @param {number|null} [request.conversation_id] - Optional conversation ID (null for new conversation)
-   * @returns {Promise<Object>} Promise resolving to chat response with conversation_id, response, and tool_calls
-   */
-  async postChat(userId, request) {
-    return this.post(`/api/${userId}/chat`, request);
-  }
 }
 
 export const apiClient = new ApiClient();

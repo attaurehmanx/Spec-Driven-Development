@@ -11,13 +11,11 @@ interface DialogProps {
 interface DialogTriggerProps {
   children: React.ReactNode;
   asChild?: boolean;
-  onClick?: () => void;
 }
 
 interface DialogContentProps {
   children: React.ReactNode;
   className?: string;
-  onClose?: () => void;
 }
 
 interface DialogHeaderProps {
@@ -63,19 +61,10 @@ const Dialog = ({ children, open, onOpenChange }: DialogProps) => {
 
   return (
     <div>
-      {trigger && React.isValidElement(trigger) && (
-        <span onClick={toggleOpen}>
-          {React.cloneElement(trigger as React.ReactElement<any>, {
-            onClick: (e: React.MouseEvent) => {
-              e.stopPropagation();
-              toggleOpen();
-            }
-          })}
-        </span>
-      )}
+      {trigger && React.cloneElement(trigger as React.ReactElement, { onClick: toggleOpen })}
       {isOpen && content && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          {React.cloneElement(content as React.ReactElement<any>, { onClose: toggleOpen })}
+          {React.cloneElement(content as React.ReactElement, { onClose: toggleOpen })}
         </div>
       )}
     </div>
@@ -84,7 +73,7 @@ const Dialog = ({ children, open, onOpenChange }: DialogProps) => {
 
 const DialogTrigger = ({ children, onClick }: DialogTriggerProps & { onClick?: () => void }) => {
   const child = React.Children.only(children);
-  return React.cloneElement(child as React.ReactElement<any>, { onClick });
+  return React.cloneElement(child as React.ReactElement, { onClick });
 };
 
 interface DialogContentComponent extends React.FC<DialogContentProps> {
@@ -169,7 +158,7 @@ const DialogFooter = ({ children }: DialogFooterProps) => {
 DialogFooter.displayName = 'DialogFooter';
 
 const DialogClose = ({ children, onClick }: DialogCloseProps) => {
-  return React.cloneElement(children as React.ReactElement<any>, { onClick });
+  return React.cloneElement(children as React.ReactElement, { onClick });
 };
 
 DialogClose.displayName = 'DialogClose';

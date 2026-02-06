@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Task } from '../../types';
+import { Task } from '../../../types';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 

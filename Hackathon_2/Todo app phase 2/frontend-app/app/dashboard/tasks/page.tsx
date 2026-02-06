@@ -1,21 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { Plus, Edit, Trash2, CheckCircle2, Circle } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/protected-route';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import ErrorMessage from '@/components/ui/error-message';
+import { Badge } from '@/components/ui/badge';
 import { Task } from '@/types';
 import useAuth from '@/hooks/use-auth';
 import { taskService } from '@/lib/api/task-service';
-import { useTaskRefresh } from '@/hooks/use-task-refresh';
-import { EmptyStateIllustration } from '@/components/ui/empty-state-illustration';
-import { TaskModal } from '@/components/tasks/task-modal';
-import { DeleteConfirmationModal } from '@/components/tasks/delete-confirmation-modal';
-import { ToastContainer } from '@/components/ui/toast';
 
 const TaskListPage: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -23,54 +19,29 @@ const TaskListPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'completed' | 'pending'>('all');
 
-  // Modal states
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-
-  // Toast states
-  const [toasts, setToasts] = useState<Array<{ id: string; type: 'success' | 'error' | 'warning' | 'info'; message: string }>>([]);
-
   const router = useRouter();
   const { user } = useAuth();
 
-  // Toast helper functions
-  const addToast = (type: 'success' | 'error' | 'warning' | 'info', message: string) => {
-    const id = Date.now().toString();
-    setToasts((prev) => [...prev, { id, type, message }]);
-  };
-
-  const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  };
-
-  // Fetch tasks function
-  const fetchTasks = async () => {
-    if (!user?.id) return;
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await taskService.getUserTasks(user.id);
-      setTasks(response.tasks);
-    } catch (err: any) {
-      console.error('Error fetching tasks:', err);
-      setError(err.message || 'Failed to load tasks');
-      addToast('error', 'Failed to load tasks');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Initial fetch on mount
   useEffect(() => {
+    const fetchTasks = async () => {
+      if (!user?.id) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await taskService.getUserTasks(user.id);
+        setTasks(response.tasks);
+      } catch (err: any) {
+        console.error('Error fetching tasks:', err);
+        setError(err.message || 'Failed to load tasks');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchTasks();
   }, [user]);
-
-  // Listen for task updates from chat interface
-  useTaskRefresh(fetchTasks);
 
   // Filter tasks based on selected filter
   const filteredTasks = tasks.filter(task => {
@@ -81,69 +52,6 @@ const TaskListPage: React.FC = () => {
 
   const completedCount = tasks.filter(task => task.completed).length;
   const pendingCount = tasks.filter(task => !task.completed).length;
-
-  // Handle create task
-  const handleCreateTask = async (data: { title: string; description: string; completed: boolean }) => {
-    if (!user?.id) return;
-
-    try {
-      await taskService.createTask(user.id, data);
-      await fetchTasks();
-      addToast('success', 'Task created successfully!');
-    } catch (err: any) {
-      console.error('Error creating task:', err);
-      addToast('error', err.message || 'Failed to create task');
-      throw err;
-    }
-  };
-
-  // Handle edit task
-  const handleEditTask = async (data: { title: string; description: string; completed: boolean }) => {
-    if (!user?.id || !selectedTask) return;
-
-    try {
-      await taskService.updateTask(user.id, selectedTask.id, data);
-      await fetchTasks();
-      addToast('success', 'Task updated successfully!');
-    } catch (err: any) {
-      console.error('Error updating task:', err);
-      addToast('error', err.message || 'Failed to update task');
-      throw err;
-    }
-  };
-
-  // Handle delete task
-  const handleDeleteTask = async () => {
-    if (!user?.id || !selectedTask) return;
-
-    try {
-      await taskService.deleteTask(user.id, selectedTask.id);
-      await fetchTasks();
-      addToast('success', 'Task deleted successfully!');
-    } catch (err: any) {
-      console.error('Error deleting task:', err);
-      addToast('error', err.message || 'Failed to delete task');
-      throw err;
-    }
-  };
-
-  // Handle toggle completion
-  const handleToggleComplete = async (task: Task) => {
-    if (!user?.id) return;
-
-    try {
-      await taskService.updateTask(user.id, task.id, {
-        title: task.title,
-        description: task.description || '',
-        completed: !task.completed,
-      });
-      await fetchTasks();
-      addToast('success', task.completed ? 'Task marked as pending' : 'Task completed!');
-    } catch (err: any) {
-      console.error('Error toggling task:', err);
-      addToast('error', 'Failed to update task');
-    }
-  };
 
   if (loading) {
     return (
@@ -157,54 +65,42 @@ const TaskListPage: React.FC = () => {
 
   return (
     <ProtectedRoute>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="space-y-6 pb-24 md:pb-6"
-      >
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row md:justify-between md:items-center gap-4"
-        >
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
           <div>
-            <h1 className="text-4xl font-extrabold bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 dark:from-purple-400 dark:via-pink-400 dark:to-cyan-400 bg-clip-text text-transparent">
-              My Tasks
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <h1 className="text-3xl font-bold">My Tasks</h1>
+            <p className="text-gray-600 mt-1">
               Manage your tasks efficiently
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            {/* Filter Buttons */}
-            <div className="flex gap-1 p-1 glass rounded-xl">
+            <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
               <button
-                className={`px-4 py-2 text-sm font-bold rounded-lg transition-all duration-200 ${
+                className={`px-3 py-1 text-sm rounded-md ${
                   filter === 'all'
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-slate-800/50'
+                    ? 'bg-white shadow-sm text-gray-900'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
                 onClick={() => setFilter('all')}
               >
                 All ({tasks.length})
               </button>
               <button
-                className={`px-4 py-2 text-sm font-bold rounded-lg transition-all duration-200 ${
+                className={`px-3 py-1 text-sm rounded-md ${
                   filter === 'pending'
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-slate-800/50'
+                    ? 'bg-white shadow-sm text-gray-900'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
                 onClick={() => setFilter('pending')}
               >
                 Pending ({pendingCount})
               </button>
               <button
-                className={`px-4 py-2 text-sm font-bold rounded-lg transition-all duration-200 ${
+                className={`px-3 py-1 text-sm rounded-md ${
                   filter === 'completed'
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-slate-800/50'
+                    ? 'bg-white shadow-sm text-gray-900'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
                 onClick={() => setFilter('completed')}
               >
@@ -212,52 +108,31 @@ const TaskListPage: React.FC = () => {
               </button>
             </div>
 
-            {/* Create Button */}
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 shadow-lg shadow-purple-500/50 hover:shadow-xl hover:shadow-purple-500/60 transition-all duration-300 hover:scale-105 hover:-translate-y-1"
-            >
-              <Plus className="w-4 h-4" />
-              Create Task
-            </button>
+            <Button onClick={() => router.push('/dashboard/tasks/create')}>
+              Create New Task
+            </Button>
           </div>
-        </motion.div>
+        </div>
 
         {error && <ErrorMessage message={error} />}
 
-        {/* Empty State */}
         {filteredTasks.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className="relative overflow-hidden rounded-3xl glass-strong border-2 border-white/30 dark:border-white/20 shadow-2xl"
-          >
-            {/* Gradient background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-cyan-500/10"></div>
-
-            <div className="relative flex flex-col items-center justify-center py-16 px-8">
-              <EmptyStateIllustration />
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-center mt-8"
-              >
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+          <Card className="border-2 border-dashed border-gray-300">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <div className="text-center">
+                <h3 className="text-lg font-medium text-gray-900 mb-1">
                   {filter === 'all'
                     ? 'No tasks yet'
                     : filter === 'pending'
                       ? 'No pending tasks'
                       : 'No completed tasks'}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
+                <p className="text-gray-500 mb-6">
                   {filter === 'all'
-                    ? 'Get started by creating your first task and boost your productivity!'
+                    ? 'Get started by creating your first task'
                     : filter === 'pending'
-                      ? 'Great job! All tasks are completed. Time to add new ones!'
-                      : 'Start working on some tasks to see them here!'}
+                      ? 'Great job! All tasks are completed.'
+                      : 'Start working on some tasks!'}
                 </p>
 
                 <Button
@@ -265,171 +140,89 @@ const TaskListPage: React.FC = () => {
                     if (filter === 'completed') {
                       setFilter('all');
                     } else {
-                      setIsCreateModalOpen(true);
+                      router.push('/dashboard/tasks/create');
                     }
                   }}
-                  size="lg"
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-lg shadow-purple-500/50"
                 >
-                  {filter === 'completed' ? 'View All Tasks' : (
-                    <>
-                      <Plus className="w-5 h-5" />
-                      Create Your First Task
-                    </>
-                  )}
+                  {filter === 'completed' ? 'View All Tasks' : 'Create Task'}
                 </Button>
-              </motion.div>
-            </div>
-          </motion.div>
+              </div>
+            </CardContent>
+          </Card>
         ) : (
-          /* Task Grid */
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {filteredTasks.map((task, index) => (
-              <motion.div
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTasks.map((task) => (
+              <Card
                 key={task.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                whileHover={{ y: -5, scale: 1.02 }}
-                className={`relative overflow-hidden rounded-2xl glass-strong border-2 shadow-xl transition-all duration-300 ${
+                className={`overflow-hidden transition-all duration-300 hover:shadow-lg ${
                   task.completed
-                    ? 'border-green-500/50 shadow-green-500/20'
-                    : 'border-purple-500/50 shadow-purple-500/20'
+                    ? 'border-green-200 bg-green-50/30'
+                    : 'border-yellow-200 bg-yellow-50/30'
                 }`}
               >
-                {/* Gradient background */}
-                <div className={`absolute inset-0 ${
-                  task.completed
-                    ? 'bg-gradient-to-br from-green-500/10 to-emerald-500/10'
-                    : 'bg-gradient-to-br from-purple-500/10 to-pink-500/10'
-                }`}></div>
-
-                <div className="relative p-6">
-                  {/* Header with status indicator */}
-                  <div className="flex items-start justify-between mb-4">
-                    <button
-                      onClick={() => handleToggleComplete(task)}
-                      className="flex-shrink-0 mr-3 transition-transform hover:scale-110"
-                    >
-                      {task.completed ? (
-                        <CheckCircle2 className="w-6 h-6 text-green-500" />
-                      ) : (
-                        <Circle className="w-6 h-6 text-gray-400 dark:text-gray-500" />
-                      )}
-                    </button>
-
+                <div className="p-5">
+                  <div className="flex justify-between items-start mb-3">
                     <div className="flex-1 min-w-0">
-                      <h3 className={`font-bold text-lg mb-1 ${
+                      <h3 className={`font-semibold truncate ${
                         task.completed
-                          ? 'line-through text-gray-500 dark:text-gray-400'
-                          : 'text-gray-900 dark:text-gray-100'
+                          ? 'line-through text-gray-500'
+                          : 'text-gray-900'
                       }`}>
                         {task.title}
                       </h3>
 
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                        task.completed
-                          ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
-                          : 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300'
-                      }`}>
-                        {task.completed ? 'Completed' : 'Pending'}
-                      </span>
+                      <div className="flex items-center mt-2 space-x-2">
+                        <Badge
+                          variant={task.completed ? 'default' : 'secondary'}
+                          className={`text-xs ${
+                            task.completed
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}
+                        >
+                          {task.completed ? 'Completed' : 'Pending'}
+                        </Badge>
+
+                        <span className="text-xs text-gray-500">
+                          Updated: {new Date(task.updated_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="ml-3">
+                      <div className={`w-3 h-3 rounded-full ${
+                        task.completed ? 'bg-green-500' : 'bg-yellow-500'
+                      }`}></div>
                     </div>
                   </div>
 
-                  {/* Description */}
                   {task.description && (
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
-                      {task.description}
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                      {task.description.substring(0, 100)}{task.description.length > 100 ? '...' : ''}
                     </p>
                   )}
 
-                  {/* Metadata */}
-                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-4">
-                    <span>Updated: {new Date(task.updated_at).toLocaleDateString()}</span>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedTask(task);
-                        setIsEditModalOpen(true);
-                      }}
-                      className="flex-1"
-                    >
-                      <Edit className="w-4 h-4" />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedTask(task);
-                        setIsDeleteModalOpen(true);
-                      }}
-                      className="flex-1"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Delete
-                    </Button>
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => router.push(`/dashboard/tasks/${task.id}`)}
+                  >
+                    View Details
+                  </Button>
                 </div>
-              </motion.div>
+              </Card>
             ))}
-          </motion.div>
+          </div>
         )}
 
         {/* Show total tasks count when filtered */}
         {filter !== 'all' && filteredTasks.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center text-sm text-gray-500 dark:text-gray-400"
-          >
+          <div className="text-center text-sm text-gray-500">
             Showing {filteredTasks.length} of {tasks.length} tasks
-          </motion.div>
+          </div>
         )}
-      </motion.div>
-
-      {/* Modals */}
-      <TaskModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSubmit={handleCreateTask}
-        mode="create"
-      />
-
-      <TaskModal
-        isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setSelectedTask(null);
-        }}
-        onSubmit={handleEditTask}
-        task={selectedTask}
-        mode="edit"
-      />
-
-      <DeleteConfirmationModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => {
-          setIsDeleteModalOpen(false);
-          setSelectedTask(null);
-        }}
-        onConfirm={handleDeleteTask}
-        taskTitle={selectedTask?.title || ''}
-      />
-
-      {/* Toast Notifications */}
-      <ToastContainer toasts={toasts} onClose={removeToast} />
+      </div>
     </ProtectedRoute>
   );
 };
