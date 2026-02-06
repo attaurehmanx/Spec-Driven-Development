@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \".specify/scripts/powershell/setup-plan.ps1\" -Json)",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json)",
+      "Bash(.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks)",
+      "Bash(python simple_main.py)",
+      "Bash(npm install)",
+      "Bash(xcopy /E /I \"app\\\\\\(auth\\)\\\\sign-in\" \"app\\\\auth\\\\sign-in\")",
+      "Bash(powershell Copy-Item \"app/\\(auth\\)/sign-in/page.tsx\" \"app/auth/sign-in/page.tsx\" -Force)",
+      "Bash(copy \"Z:\\\\phase 2\\\\task-detail-page-fixed.tsx\" \"Z:\\\\phase 2\\\\frontend-app\\\\app\\\\dashboard\\\\tasks\\\\[id]\\\\page.tsx\")",
+      "Bash(dir backendtaskapp.db)",
+      "Bash(del \"Z:\\\\phase 2\\\\backend\\\\taskapp.db\")",
+      "Bash(findstr env)",
+      "Bash(git fetch --all --prune)",
+      "Bash(git rev-parse --git-dir)",
+      "Bash(npm run build)",
+      "Bash(python:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(if [ -d \"specs/005-ai-agent-service/checklists\" ])",
+      "Bash(then find specs/005-ai-agent-service/checklists -name \"*.md\" -type f)",
+      "Bash(else echo \"No checklists directory found\")",
+      "Bash(fi:*)",
+      "Bash(ls -la backend/services/agent_service.py backend/config/agent_config.py backend/test_agent_*.py)",
+      "Bash(bash:*)",
+      "Bash(if:*)",
+      "Bash(then ls -d specs/*/)"
+    ]
+  }
+}
