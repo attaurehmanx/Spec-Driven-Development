@@ -126,8 +126,8 @@ const useChat = (): UseChatReturn => {
       });
 
       // Update conversation ID if this was a new conversation
-      if (conversationId === null && response.conversation_id) {
-        setConversationId(response.conversation_id);
+      if (conversationId === null && (response as any).conversation_id) {
+        setConversationId((response as any).conversation_id);
       }
 
       // Update user message status to 'sent'
@@ -143,13 +143,13 @@ const useChat = (): UseChatReturn => {
       const aiMessage: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'assistant',
-        content: response.response,
+        content: (response as any).response,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aiMessage]);
 
       // Trigger task refresh if AI performed data modifications
-      if (response.tool_calls && response.tool_calls.some(tool =>
+      if ((response as any).tool_calls && (response as any).tool_calls.some((tool: string) =>
         ['add_task', 'update_task', 'delete_task', 'complete_task'].includes(tool)
       )) {
         window.dispatchEvent(new CustomEvent('tasks-updated'));

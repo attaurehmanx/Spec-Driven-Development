@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { motion } from 'framer-motion';
 import { ChatMessage as ChatMessageType } from '@/types';
 import { cn } from '@/lib/utils';
 import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
@@ -29,7 +30,10 @@ const ChatMessageComponent = ({ message, isLatest }: ChatMessageProps) => {
   };
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
       className={cn(
         'flex w-full mb-4',
         isUser ? 'justify-end' : 'justify-start'
@@ -39,10 +43,10 @@ const ChatMessageComponent = ({ message, isLatest }: ChatMessageProps) => {
     >
       <div
         className={cn(
-          'max-w-[80%] rounded-lg px-4 py-3 shadow-sm',
+          'max-w-[80%] rounded-xl px-4 py-3 shadow-lg transition-all',
           isUser
-            ? 'bg-primary-500 text-white'
-            : 'bg-gray-100 text-gray-900 border border-gray-200'
+            ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white'
+            : 'bg-card/80 dark:bg-card/60 text-card-foreground border border-border backdrop-blur-sm'
         )}
       >
         {/* Message content */}
@@ -54,7 +58,7 @@ const ChatMessageComponent = ({ message, isLatest }: ChatMessageProps) => {
         <div
           className={cn(
             'flex items-center gap-2 mt-2 text-xs',
-            isUser ? 'text-primary-50' : 'text-gray-500'
+            isUser ? 'text-indigo-100' : 'text-muted-foreground'
           )}
         >
           <span>{formatTime(message.timestamp)}</span>
@@ -83,7 +87,7 @@ const ChatMessageComponent = ({ message, isLatest }: ChatMessageProps) => {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

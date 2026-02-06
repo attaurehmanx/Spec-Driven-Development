@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ChatMessage as ChatMessageType } from '@/types';
 import { ChatMessage } from './chat-message';
 import { ChatLoading } from './chat-loading';
@@ -29,8 +30,13 @@ export function ChatMessageList({ messages, isLoading }: ChatMessageListProps) {
   if (messages.length === 0 && !isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
-        <div className="text-center max-w-md">
-          <div className="mb-4 text-gray-400">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+          className="text-center max-w-md"
+        >
+          <div className="mb-4 text-muted-foreground">
             <svg
               className="mx-auto h-12 w-12"
               fill="none"
@@ -45,13 +51,13 @@ export function ChatMessageList({ messages, isLoading }: ChatMessageListProps) {
               />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-lg font-medium text-foreground mb-2">
             Start a conversation
           </h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             Ask your AI assistant to help manage your tasks. Try asking "What tasks do I have?" or "Create a task to buy groceries".
           </p>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -64,13 +70,15 @@ export function ChatMessageList({ messages, isLoading }: ChatMessageListProps) {
       aria-label="Chat message history"
       aria-live="polite"
     >
-      {messages.map((message, index) => (
-        <ChatMessage
-          key={message.id}
-          message={message}
-          isLatest={index === messages.length - 1}
-        />
-      ))}
+      <AnimatePresence mode="popLayout">
+        {messages.map((message, index) => (
+          <ChatMessage
+            key={message.id}
+            message={message}
+            isLatest={index === messages.length - 1}
+          />
+        ))}
+      </AnimatePresence>
 
       {/* Loading indicator */}
       {isLoading && <ChatLoading />}

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import useChat from '@/hooks/use-chat';
 import { ChatHeader } from './chat-header';
@@ -58,9 +59,13 @@ export function ChatInterface({
   }
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
       className={cn(
-        'flex flex-col h-full bg-white shadow-lg',
+        'flex flex-col h-full bg-background/95 dark:bg-background/90 backdrop-blur-sm shadow-2xl border-l border-border',
         className
       )}
       role="dialog"
@@ -75,32 +80,46 @@ export function ChatInterface({
       />
 
       {/* Error banner */}
-      {error && (
-        <div className="bg-red-50 border-b border-red-200 px-4 py-3">
-          <div className="flex items-start gap-2">
-            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm text-red-800">{error}</p>
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="bg-destructive/10 dark:bg-destructive/20 border-b border-destructive/20 px-4 py-3"
+          >
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm text-destructive">{error}</p>
+              </div>
+              <button
+                onClick={clearError}
+                className="text-destructive hover:text-destructive/80 text-sm font-medium transition-colors"
+              >
+                Dismiss
+              </button>
             </div>
-            <button
-              onClick={clearError}
-              className="text-red-600 hover:text-red-800 text-sm font-medium"
-            >
-              Dismiss
-            </button>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Task update notification */}
-      {showTaskUpdateNotification && (
-        <div className="bg-green-50 border-b border-green-200 px-4 py-3">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
-            <p className="text-sm text-green-800">Task list updated</p>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {showTaskUpdateNotification && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="bg-green-500/10 dark:bg-green-500/20 border-b border-green-500/20 px-4 py-3"
+          >
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0" />
+              <p className="text-sm text-green-700 dark:text-green-300">Task list updated</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Message list */}
       <ChatMessageList messages={messages} isLoading={isLoading} />
@@ -111,6 +130,6 @@ export function ChatInterface({
         disabled={isLoading}
         placeholder="Ask me to help with your tasks..."
       />
-    </div>
+    </motion.div>
   );
 }

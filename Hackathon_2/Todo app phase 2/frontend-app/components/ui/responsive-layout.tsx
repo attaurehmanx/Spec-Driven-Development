@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 interface ResponsiveLayoutProps {
   children: ReactNode;
@@ -33,7 +34,7 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
 
       <div className="flex flex-1">
         {sidebar && (
-          <aside className="hidden md:block w-64 flex-shrink-0">
+          <aside className="hidden md:block w-64 flex-shrink-0 glass-strong border-r-2 border-white/20 dark:border-white/10">
             {sidebar}
           </aside>
         )}
@@ -58,6 +59,7 @@ interface SidebarItemProps {
   href?: string;
   active?: boolean;
   onClick?: () => void;
+  icon?: React.ReactNode;
 }
 
 const SidebarItem: React.FC<SidebarItemProps> = ({
@@ -65,25 +67,41 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   href,
   active = false,
   onClick,
+  icon,
 }) => {
-  const baseClasses = "flex items-center px-4 py-3 text-base font-medium rounded-md";
+  const baseClasses = "flex items-center gap-3 px-4 py-3 text-base font-bold rounded-xl transition-all duration-200";
   const activeClasses = active
-    ? "bg-blue-100 text-blue-800"
-    : "text-gray-600 hover:bg-gray-100";
+    ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50"
+    : "text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-slate-800/50 hover:scale-105";
 
   const classes = `${baseClasses} ${activeClasses}`;
+
+  const content = (
+    <>
+      {icon && <span className="flex-shrink-0">{icon}</span>}
+      <span>{children}</span>
+      {active && (
+        <motion.div
+          layoutId="activeIndicator"
+          className="ml-auto w-2 h-2 rounded-full bg-white"
+          initial={false}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        />
+      )}
+    </>
+  );
 
   if (href) {
     return (
       <Link href={href} className={classes}>
-        {children}
+        {content}
       </Link>
     );
   }
 
   return (
     <button className={classes} onClick={onClick}>
-      {children}
+      {content}
     </button>
   );
 };
