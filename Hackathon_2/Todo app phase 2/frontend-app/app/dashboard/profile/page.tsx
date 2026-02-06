@@ -3,7 +3,7 @@
 import useAuth from '../../../hooks/use-auth';
 import ProtectedRoute from '../../../components/auth/protected-route';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../../components/ui/card';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '../../../components/ui/button';
 import Input from '../../../components/ui/input';
 import Avatar from '../../../components/ui/avatar';
@@ -16,19 +16,15 @@ import {
   DialogTitle,
   DialogTrigger
 } from '../../../components/ui/dialog';
-import { CameraIcon, PhoneIcon, MapPinIcon, CalendarIcon, UserIcon, Loader2 } from 'lucide-react';
+import { CameraIcon, PhoneIcon, MapPinIcon, CalendarIcon, UserIcon } from 'lucide-react';
 
 const ProfilePage = () => {
   const { user, isLoading, updateUserProfile, uploadUserAvatar, deleteUserAccount, signOut } = useAuth();
-  const [mounted, setMounted] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-
-  // Initialize state without relying on user data initially
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
-
+  const [firstName, setFirstName] = useState(user?.first_name || '');
+  const [lastName, setLastName] = useState(user?.last_name || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [address, setAddress] = useState(user?.address || '');
   const [errors, setErrors] = useState({
     firstName: '',
     lastName: '',
@@ -38,21 +34,6 @@ const ProfilePage = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // 1. Prevent Hydration Error
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // 2. Sync form fields when user data finishes loading
-  useEffect(() => {
-    if (user) {
-      setFirstName(user.first_name || '');
-      setLastName(user.last_name || '');
-      setPhone(user.phone || '');
-      setAddress(user.address || '');
-    }
-  }, [user]);
 
   const validateForm = () => {
     let isValid = true;
@@ -136,21 +117,26 @@ const ProfilePage = () => {
   if (isLoading) {
     return (
       <ProtectedRoute>
-        <div className="container mx-auto py-10 flex justify-center">
-          <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
+        <div className="container mx-auto py-10">
+          <div className="max-w-4xl mx-auto">
+            <Card>
+              <CardHeader className="text-center pb-4">
+                <div className="flex justify-center mb-4">
+                  <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center animate-pulse"></div>
+                </div>
+                <CardTitle className="text-2xl font-bold">Profile Settings</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-center">
+                  <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </ProtectedRoute>
     );
   }
-
-  // Don't render the UI until mounted to prevent hydration mismatches with Dialog components
-  if (!mounted) {
-    return null;
-  }
-
-  const avatarUrl = avatarPreview ||
-    (user?.avatar ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${user.avatar}` :
-    `https://ui-avatars.com/api/?name=${user?.first_name}+${user?.last_name}&background=6366f1&color=fff`);
 
   return (
     <ProtectedRoute>
@@ -166,7 +152,7 @@ const ProfilePage = () => {
                     onClick={handleAvatarClick}
                   >
                     <Avatar
-                      src={avatarUrl}
+                      src={avatarPreview || (user?.avatar ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${user.avatar}` : `https://ui-avatars.com/api/?name=${user?.first_name}+${user?.last_name}&background=fff&color=6366f1`)}
                       alt={`${user?.first_name} ${user?.last_name}`}
                       className="w-24 h-24 border-4 border-white shadow-lg"
                     />
@@ -301,7 +287,11 @@ const ProfilePage = () => {
                       <CalendarIcon className="w-4 h-4 mr-1" />
                       Member Since
                     </label>
+<<<<<<< HEAD
                     <p className="text-sm text-gray-900 dark:text-gray-100">{user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</p>
+=======
+                    <p className="text-sm text-gray-900">{user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Today'}</p>
+>>>>>>> parent of bac3a21 ("Fix: Delete Button")
                   </div>
 
                   {/* Account Status */}
@@ -318,12 +308,26 @@ const ProfilePage = () => {
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-500">Account Actions</label>
                     <br />
+<<<<<<< HEAD
                     <button
                       className="mt-4 px-4 py-2 rounded-lg font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-200 dark:border-red-800 transition-all"
                       onClick={() => confirm('Sign out?') && signOut()}
                     >
                       Sign out of session
                     </button>
+=======
+                    <Button
+                      variant="outline"
+                      className=""
+                      onClick={() => {
+                        if (confirm('Are you sure you want to sign out?')) {
+                          signOut();
+                        }
+                      }}
+                    >
+                      Sign Out
+                    </Button>
+>>>>>>> parent of bac3a21 ("Fix: Delete Button")
                   </div>
 
                   {/* Profile Picture Upload */}
@@ -331,7 +335,7 @@ const ProfilePage = () => {
                     <label className="text-sm font-medium text-gray-500">Profile Picture</label>
                     <div className="flex items-center space-x-4">
                       <Avatar
-                        src={avatarUrl}
+                        src={avatarPreview || (user?.avatar ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${user.avatar}` : `https://ui-avatars.com/api/?name=${user?.first_name}+${user?.last_name}&background=fff&color=6366f1`)}
                         alt={`${user?.first_name} ${user?.last_name}`}
                         className="w-16 h-16"
                       />
@@ -390,6 +394,7 @@ const ProfilePage = () => {
               </div>
             </CardContent>
 
+<<<<<<< HEAD
             <CardFooter className="bg-red-50/50 dark:bg-red-900/20 border-t border-red-100 dark:border-red-800 p-8">
   <div className="flex justify-between items-center w-full">
     <div>
@@ -446,6 +451,48 @@ const ProfilePage = () => {
     )}
   </div>
 </CardFooter>
+=======
+            {/* Danger Zone */}
+            <CardFooter className="bg-gray-50 border-t p-6">
+              <div className="w-full">
+                <h3 className="text-lg font-medium text-red-600 mb-2">Danger Zone</h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  Once you delete your account, there is no going back. Please be certain.
+                </p>
+                <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="destructive">
+                      Delete Account
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Delete Account</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to delete your account? This action cannot be undone.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsDeleteDialogOpen(false)}
+                        disabled={isDeleting}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={handleDeleteAccount}
+                        disabled={isDeleting}
+                      >
+                        {isDeleting ? 'Deleting...' : 'Delete Account'}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </CardFooter>
+>>>>>>> parent of bac3a21 ("Fix: Delete Button")
           </Card>
         </div>
       </div>

@@ -13,6 +13,7 @@
       "Bash(del \"Z:\\\\phase 2\\\\backend\\\\taskapp.db\")",
       "Bash(findstr env)",
       "Bash(git fetch --all --prune)",
+<<<<<<< HEAD
       "Bash(git rev-parse --git-dir)",
       "Bash(npm run build)",
       "Bash(python:*)",
@@ -23,6 +24,9 @@
       "Bash(fi:*)",
       "Bash(ls -la backend/services/agent_service.py backend/config/agent_config.py backend/test_agent_*.py)",
       "Bash(bash:*)"
+=======
+      "Bash(git rev-parse --git-dir)"
+>>>>>>> parent of bac3a21 ("Fix: Delete Button")
     ]
   }
 }
