@@ -94,15 +94,15 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.6 }}
-            className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6"
+            className="mt-16 flex flex-col md:grid md:grid-cols-3 gap-6 items-center justify-center"
           >
             {/* Feature 1 */}
             <motion.div
               whileHover={{ scale: 1.05, y: -5 }}
-              className="relative overflow-hidden rounded-2xl glass-strong p-6 border-2 border-purple-500/40 dark:border-purple-500/40 shadow-xl"
+              className="relative overflow-hidden rounded-2xl glass-strong p-6 border-2 border-purple-500/40 dark:border-purple-500/40 shadow-xl w-full max-w-sm"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/20 to-transparent rounded-full blur-2xl"></div>
-              <div className="relative z-10">
+              <div className="relative z-10 flex flex-col items-center">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center mb-3 shadow-lg shadow-purple-500/50">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -118,10 +118,10 @@ export default function HomePage() {
             {/* Feature 2 */}
             <motion.div
               whileHover={{ scale: 1.05, y: -5 }}
-              className="relative overflow-hidden rounded-2xl glass-strong p-6 border-2 border-pink-500/40 dark:border-pink-500/40 shadow-xl"
+              className="relative overflow-hidden rounded-2xl glass-strong p-6 border-2 border-pink-500/40 dark:border-pink-500/40 shadow-xl w-full max-w-sm"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-pink-500/20 to-transparent rounded-full blur-2xl"></div>
-              <div className="relative z-10">
+              <div className="relative z-10 flex flex-col items-center">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-600 to-cyan-600 flex items-center justify-center mb-3 shadow-lg shadow-pink-500/50">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -137,10 +137,10 @@ export default function HomePage() {
             {/* Feature 3 */}
             <motion.div
               whileHover={{ scale: 1.05, y: -5 }}
-              className="relative overflow-hidden rounded-2xl glass-strong p-6 border-2 border-cyan-500/40 dark:border-cyan-500/40 shadow-xl"
+              className="relative overflow-hidden rounded-2xl glass-strong p-6 border-2 border-cyan-500/40 dark:border-cyan-500/40 shadow-xl w-full max-w-sm"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-cyan-500/20 to-transparent rounded-full blur-2xl"></div>
-              <div className="relative z-10">
+              <div className="relative z-10 flex flex-col items-center">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-600 to-green-600 flex items-center justify-center mb-3 shadow-lg shadow-cyan-500/50">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />

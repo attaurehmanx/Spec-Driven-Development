@@ -111,7 +111,7 @@ export function DeleteConfirmationModal({
                     variant="outline"
                     onClick={handleClose}
                     disabled={isDeleting}
-                    className="flex-1"
+                    className="flex-1 hover:bg-purple-100 dark:hover:bg-purple-500 hover:text-purple-700 dark:hover:text-white"
                   >
                     Cancel
                   </Button>

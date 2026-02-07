@@ -1,6 +1,7 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Menu, X } from 'lucide-react';
 
 interface ResponsiveLayoutProps {
   children: ReactNode;
@@ -19,6 +20,8 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   title,
   maxWidth = '2xl',
 }) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const maxWidthClass = {
     sm: 'max-w-screen-sm',
     md: 'max-w-screen-md',
@@ -32,12 +35,56 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
     <div className="flex flex-col min-h-screen">
       {header && <header>{header}</header>}
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 relative">
+        {/* Mobile Menu Button */}
+        {sidebar && (
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden fixed top-16 left-4 z-[60] p-2 rounded-lg bg-white dark:bg-slate-800 border-2 border-purple-500 shadow-lg hover:scale-110 transition-transform"
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? (
+              <X className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            ) : (
+              <Menu className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            )}
+          </button>
+        )}
+
+        {/* Desktop Sidebar */}
         {sidebar && (
           <aside className="hidden md:block w-64 flex-shrink-0 glass-strong border-r-2 border-white/20 dark:border-white/10">
             {sidebar}
           </aside>
         )}
+
+        {/* Mobile Sidebar */}
+        <AnimatePresence>
+          {sidebar && isMobileMenuOpen && (
+            <>
+              {/* Overlay */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[55]"
+                onClick={() => setIsMobileMenuOpen(false)}
+              />
+
+              {/* Sidebar */}
+              <motion.aside
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="md:hidden fixed left-0 top-0 bottom-0 w-64 z-[60] glass-strong border-r-2 border-white/20 dark:border-white/10 shadow-2xl"
+              >
+                {sidebar}
+              </motion.aside>
+            </>
+          )}
+        </AnimatePresence>
 
         <main className={`flex-1 ${sidebar ? 'md:ml-0' : ''}`}>
           <div className={`mx-auto w-full px-4 py-6 ${maxWidthClass}`}>

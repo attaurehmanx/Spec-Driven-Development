@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Plus, Edit, Trash2, CheckCircle2, Circle } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/protected-route';
@@ -33,7 +33,17 @@ const TaskListPage: React.FC = () => {
   const [toasts, setToasts] = useState<Array<{ id: string; type: 'success' | 'error' | 'warning' | 'info'; message: string }>>([]);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
+
+  // Check for create query parameter and open modal
+  useEffect(() => {
+    if (searchParams.get('create') === 'true') {
+      setIsCreateModalOpen(true);
+      // Clean up URL
+      router.replace('/dashboard/tasks');
+    }
+  }, [searchParams, router]);
 
   // Toast helper functions
   const addToast = (type: 'success' | 'error' | 'warning' | 'info', message: string) => {
@@ -363,7 +373,7 @@ const TaskListPage: React.FC = () => {
                         setSelectedTask(task);
                         setIsEditModalOpen(true);
                       }}
-                      className="flex-1"
+                      className="flex-1 hover:bg-purple-100 dark:hover:bg-purple-500 hover:text-purple-700 dark:hover:text-white"
                     >
                       <Edit className="w-4 h-4" />
                       Edit

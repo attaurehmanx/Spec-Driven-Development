@@ -4,12 +4,43 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import useAuth from '../../hooks/use-auth';
 import { taskService } from '../../lib/api/task-service';
+import { TaskModal } from '../../components/tasks/task-modal';
+import { ToastContainer } from '../../components/ui/toast';
 
 export default function DashboardPage() {
   const { user, isLoading, isAuthenticated, error } = useAuth();
   const router = useRouter();
   const [stats, setStats] = useState({ total: 0, completed: 0, pending: 0 });
   const [statsLoading, setStatsLoading] = useState(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [toasts, setToasts] = useState<Array<{ id: string; type: 'success' | 'error' | 'warning' | 'info'; message: string }>>([]);
+
+  // Toast helper functions
+  const addToast = (type: 'success' | 'error' | 'warning' | 'info', message: string) => {
+    const id = Date.now().toString();
+    setToasts((prev) => [...prev, { id, type, message }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  };
+
+  // Fetch task statistics
+  const fetchStats = async () => {
+    if (isAuthenticated && user?.id) {
+      try {
+        setStatsLoading(true);
+        const statsData = await taskService.getTaskStats(user.id);
+        setStats(statsData);
+      } catch (err) {
+        console.error('Error fetching task stats:', err);
+        // Set default values if there's an error
+        setStats({ total: 0, completed: 0, pending: 0 });
+      } finally {
+        setStatsLoading(false);
+      }
+    }
+  };
 
   // If not authenticated, redirect to sign-in
   useEffect(() => {
@@ -20,24 +51,23 @@ export default function DashboardPage() {
 
   // Fetch task statistics when user is authenticated
   useEffect(() => {
-    const fetchStats = async () => {
-      if (isAuthenticated && user?.id) {
-        try {
-          setStatsLoading(true);
-          const statsData = await taskService.getTaskStats(user.id);
-          setStats(statsData);
-        } catch (err) {
-          console.error('Error fetching task stats:', err);
-          // Set default values if there's an error
-          setStats({ total: 0, completed: 0, pending: 0 });
-        } finally {
-          setStatsLoading(false);
-        }
-      }
-    };
-
     fetchStats();
   }, [isAuthenticated, user?.id]);
+
+  // Handle create task
+  const handleCreateTask = async (data: { title: string; description: string; completed: boolean }) => {
+    if (!user?.id) return;
+
+    try {
+      await taskService.createTask(user.id, data);
+      await fetchStats(); // Refresh stats after creating task
+      addToast('success', 'Task created successfully!');
+    } catch (err: any) {
+      console.error('Error creating task:', err);
+      addToast('error', err.message || 'Failed to create task');
+      throw err;
+    }
+  };
 
   if (isLoading) {
     return (
@@ -130,30 +160,30 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen">
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 min-h-[calc(100vh-56px)] flex flex-col justify-center">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 min-h-[calc(100vh-56px)] flex flex-col justify-center items-center">
         {/* Stats Overview - Interactive Clickable Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+        <div className="w-full flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-5 mb-6 md:mb-8 items-center justify-center">
           {/* Total Tasks Card */}
           <button
             onClick={() => router.push('/dashboard/tasks')}
-            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600 to-purple-700 p-8 shadow-2xl shadow-purple-500/40 hover:shadow-purple-500/60 transition-all duration-300 hover:-translate-y-2 hover:scale-105 text-left cursor-pointer"
+            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600 to-purple-700 p-6 md:p-8 shadow-2xl shadow-purple-500/40 hover:shadow-purple-500/60 transition-all duration-300 hover:-translate-y-2 hover:scale-105 text-left cursor-pointer w-full max-w-sm"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+            <div className="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-white/10 rounded-full -mr-12 md:-mr-16 -mt-12 md:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
             <div className="relative z-10">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="flex items-center justify-between mb-2 md:mb-3">
+                <div className="w-10 h-10 md:w-14 md:h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 md:h-7 md:w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                 </div>
               </div>
-              <p className="text-white/90 text-sm font-bold uppercase tracking-wider mb-2">Total Tasks</p>
+              <p className="text-white/90 text-xs md:text-sm font-bold uppercase tracking-wider mb-1 md:mb-2">Total Tasks</p>
               {statsLoading ? (
-                <p className="text-6xl font-extrabold text-white animate-pulse">...</p>
+                <p className="text-4xl md:text-6xl font-extrabold text-white animate-pulse">...</p>
               ) : (
                 <>
-                  <p className="text-6xl font-extrabold text-white mb-1">{stats.total}</p>
-                  <p className="text-sm text-white/70 font-medium">Click to view all</p>
+                  <p className="text-4xl md:text-6xl font-extrabold text-white mb-1">{ stats.total}</p>
+                  <p className="text-xs md:text-sm text-white/70 font-medium">Click to view all</p>
                 </>
               )}
             </div>
@@ -162,24 +192,24 @@ export default function DashboardPage() {
           {/* Completed Tasks Card */}
           <button
             onClick={() => router.push('/dashboard/tasks?filter=completed')}
-            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-600 to-green-700 p-8 shadow-2xl shadow-green-500/40 hover:shadow-green-500/60 transition-all duration-300 hover:-translate-y-2 hover:scale-105 text-left cursor-pointer"
+            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-600 to-green-700 p-6 md:p-8 shadow-2xl shadow-green-500/40 hover:shadow-green-500/60 transition-all duration-300 hover:-translate-y-2 hover:scale-105 text-left cursor-pointer w-full max-w-sm"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+            <div className="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-white/10 rounded-full -mr-12 md:-mr-16 -mt-12 md:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
             <div className="relative z-10">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="flex items-center justify-between mb-2 md:mb-3">
+                <div className="w-10 h-10 md:w-14 md:h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 md:h-7 md:w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
-              <p className="text-white/90 text-sm font-bold uppercase tracking-wider mb-2">Completed</p>
+              <p className="text-white/90 text-xs md:text-sm font-bold uppercase tracking-wider mb-1 md:mb-2">Completed</p>
               {statsLoading ? (
-                <p className="text-6xl font-extrabold text-white animate-pulse">...</p>
+                <p className="text-4xl md:text-6xl font-extrabold text-white animate-pulse">...</p>
               ) : (
                 <>
-                  <p className="text-6xl font-extrabold text-white mb-1">{stats.completed}</p>
-                  <p className="text-sm text-white/70 font-medium">
+                  <p className="text-4xl md:text-6xl font-extrabold text-white mb-1">{stats.completed}</p>
+                  <p className="text-xs md:text-sm text-white/70 font-medium">
                     {stats.total > 0 ? `${Math.round((stats.completed / stats.total) * 100)}% complete` : 'No tasks yet'}
                   </p>
                 </>
@@ -190,24 +220,24 @@ export default function DashboardPage() {
           {/* Pending Tasks Card */}
           <button
             onClick={() => router.push('/dashboard/tasks?filter=pending')}
-            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-600 to-pink-700 p-8 shadow-2xl shadow-pink-500/40 hover:shadow-pink-500/60 transition-all duration-300 hover:-translate-y-2 hover:scale-105 text-left cursor-pointer"
+            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-600 to-pink-700 p-6 md:p-8 shadow-2xl shadow-pink-500/40 hover:shadow-pink-500/60 transition-all duration-300 hover:-translate-y-2 hover:scale-105 text-left cursor-pointer w-full max-w-sm"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+            <div className="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-white/10 rounded-full -mr-12 md:-mr-16 -mt-12 md:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
             <div className="relative z-10">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="flex items-center justify-between mb-2 md:mb-3">
+                <div className="w-10 h-10 md:w-14 md:h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 md:h-7 md:w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
-              <p className="text-white/90 text-sm font-bold uppercase tracking-wider mb-2">Pending</p>
+              <p className="text-white/90 text-xs md:text-sm font-bold uppercase tracking-wider mb-1 md:mb-2">Pending</p>
               {statsLoading ? (
-                <p className="text-6xl font-extrabold text-white animate-pulse">...</p>
+                <p className="text-4xl md:text-6xl font-extrabold text-white animate-pulse">...</p>
               ) : (
                 <>
-                  <p className="text-6xl font-extrabold text-white mb-1">{stats.pending}</p>
-                  <p className="text-sm text-white/70 font-medium">
+                  <p className="text-4xl md:text-6xl font-extrabold text-white mb-1">{stats.pending}</p>
+                  <p className="text-xs md:text-sm text-white/70 font-medium">
                     {stats.pending > 0 ? 'Needs attention' : 'All caught up!'}
                   </p>
                 </>
@@ -217,7 +247,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Welcome Section - Compact & Action-Focused */}
-        <div className="relative overflow-hidden rounded-2xl glass-strong p-3 shadow-xl border-2 border-white/30 dark:border-white/20">
+        <div className="w-full relative overflow-hidden rounded-2xl glass-strong p-3 shadow-xl border-2 border-white/30 dark:border-white/20">
           {/* Decorative gradient orbs */}
           <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-3xl -mr-24 -mt-24"></div>
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-cyan-500/20 to-green-500/20 rounded-full blur-3xl -ml-24 -mb-24"></div>
@@ -245,7 +275,7 @@ export default function DashboardPage() {
               <div className="flex flex-col sm:flex-row gap-2">
                 {/* Primary CTA - Create Task */}
                 <button
-                  onClick={() => router.push('/dashboard/tasks/create')}
+                  onClick={() => setIsCreateModalOpen(true)}
                   className="group relative overflow-hidden bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-purple-500/50 hover:shadow-xl hover:shadow-purple-500/60 transition-all duration-300 transform hover:scale-105"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700"></div>
@@ -269,6 +299,17 @@ export default function DashboardPage() {
           </div>
         </div>
       </main>
+
+      {/* Task Creation Modal */}
+      <TaskModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSubmit={handleCreateTask}
+        mode="create"
+      />
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   );
 }

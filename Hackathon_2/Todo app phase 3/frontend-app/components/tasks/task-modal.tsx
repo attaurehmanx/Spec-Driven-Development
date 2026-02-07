@@ -209,14 +209,19 @@ export function TaskModal({ isOpen, onClose, onSubmit, task, mode }: TaskModalPr
                       variant="outline"
                       onClick={handleClose}
                       disabled={isSubmitting}
-                      className="flex-1"
+                      className="flex-1 hover:bg-purple-100 dark:hover:bg-purple-500 hover:text-purple-700 dark:hover:text-white"
                     >
                       Cancel
                     </Button>
                     <Button
                       type="submit"
+                      variant="default"
                       disabled={isSubmitting}
                       className="flex-1"
+                      style={{
+                        background: 'linear-gradient(to right, #9333ea, #a855f7)',
+                        color: 'white'
+                      }}
                     >
                       {isSubmitting ? (
                         <>
