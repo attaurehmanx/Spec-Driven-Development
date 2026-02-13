@@ -35,7 +35,7 @@ const useAuth = (): UseAuthReturn => {
         if (refreshToken) {
           // Try to get a new access token using the refresh token
           try {
-            const refreshResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/auth/refresh`, {
+            const refreshResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8001'}/auth/refresh`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

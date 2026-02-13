@@ -5,8 +5,17 @@ import { tokenStorage } from '@/lib/token-storage';
  * Handles making authenticated API requests with automatic token inclusion
  */
 class ApiClient {
-  constructor(baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000') {
-    this.baseURL = baseURL;
+  constructor() {
+    // Use different URLs for server-side (Docker) vs client-side (browser)
+    const isServer = typeof window === 'undefined';
+
+    if (isServer) {
+      // Server-side: use host.docker.internal to reach host machine
+      this.baseURL = process.env.BACKEND_URL || 'http://host.docker.internal:8001';
+    } else {
+      // Client-side: use localhost (browser can reach host ports)
+      this.baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8001';
+    }
   }
 
   /**

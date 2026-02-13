@@ -1,0 +1,51 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your task management application has been deployed to Kubernetes.
+
+========================================
+Access Your Application
+========================================
+
+{{- if .Values.frontend.enabled }}
+
+Frontend (Next.js):
+{{- if eq .Values.frontend.service.type "NodePort" }}
+  - Run: minikube service {{ include "task-management.fullname" . }}-frontend
+  - Or visit: http://$(minikube ip):{{ .Values.frontend.service.nodePort }}
+{{- else }}
+  - Run: kubectl port-forward svc/{{ include "task-management.fullname" . }}-frontend {{ .Values.frontend.service.port }}:{{ .Values.frontend.service.port }}
+  - Then visit: http://localhost:{{ .Values.frontend.service.port }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.backend.enabled }}
+
+Backend API (FastAPI):
+{{- if eq .Values.backend.service.type "NodePort" }}
+  - Run: minikube service {{ include "task-management.fullname" . }}-backend
+  - Or visit: http://$(minikube ip):{{ .Values.backend.service.nodePort }}
+  - API Docs: http://$(minikube ip):{{ .Values.backend.service.nodePort }}/docs
+{{- else }}
+  - Run: kubectl port-forward svc/{{ include "task-management.fullname" . }}-backend {{ .Values.backend.service.port }}:{{ .Values.backend.service.port }}
+  - Then visit: http://localhost:{{ .Values.backend.service.port }}
+{{- end }}
+{{- end }}
+
+========================================
+Useful Commands
+========================================
+
+Check deployment status:
+  kubectl get pods
+  kubectl get services
+
+View logs:
+  kubectl logs -l app={{ include "task-management.name" . }}-frontend -f
+  kubectl logs -l app={{ include "task-management.name" . }}-backend -f
+  kubectl logs -l app={{ include "task-management.name" . }}-database -f
+
+Get service URLs:
+  minikube service list
+
+Uninstall:
+  helm uninstall {{ .Release.Name }}

@@ -1,44 +1,68 @@
-# Stage 1: Builder - Build Next.js application
-FROM node:20-alpine AS builder
+# Multi-stage build for Next.js application
 
-# Set working directory
+# Stage 1: Dependencies
+FROM node:20-slim AS deps
+WORKDIR /app
+
+# Install dependencies based on the preferred package manager
+COPY package.json package-lock.json* ./
+RUN npm ci --omit=dev
+
+# Stage 2: Builder
+FROM node:20-slim AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json package-lock.json* ./
 
-# Install dependencies (including devDependencies for build)
+# Install ALL dependencies (including devDependencies) for build
 RUN npm ci
 
-# Copy application source
+# Copy application code
 COPY . .
 
-# Build Next.js application in standalone mode
+# Accept build arguments for Next.js public environment variables
+ARG NEXT_PUBLIC_BACKEND_URL=http://localhost:8001
+ARG NEXT_PUBLIC_API_BASE_URL=http://localhost:8001/api
+ARG NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000
+
+# Set environment variables for build (these get baked into the client bundle)
+ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_BETTER_AUTH_URL=$NEXT_PUBLIC_BETTER_AUTH_URL
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+
+# Build the application
 RUN npm run build
 
-# Stage 2: Runtime - Run Next.js standalone server
-FROM node:20-alpine
-
+# Stage 3: Runner
+FROM node:20-slim AS runner
 WORKDIR /app
 
-# Copy standalone server
-COPY --from=builder /app/.next/standalone ./
-# Copy static files
-COPY --from=builder /app/.next/static ./.next/static
-# Copy public directory
-COPY --from=builder /app/public ./public
-
-# Set environment to production
 ENV NODE_ENV=production
-ENV PORT=3000
-ENV HOSTNAME=0.0.0.0
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Expose port 3000
+# Create a non-root user
+RUN groupadd --system --gid 1001 nodejs
+RUN useradd --system --uid 1001 nextjs
+
+# Copy necessary files from builder
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+# Set correct permissions
+RUN chown -R nextjs:nodejs /app
+
+# Switch to non-root user
+USER nextjs
+
+# Expose the port
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost:3000/health || exit 1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-# Start Next.js server
+# Start the application
 CMD ["node", "server.js"]

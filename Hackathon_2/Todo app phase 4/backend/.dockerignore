@@ -27,7 +27,7 @@ run_failed_*.py
 run_tests_*.py
 scan_*.py
 
-# MCP Server (required by application - do not exclude)
+# MCP Server is required - do not exclude
 # mcp_server/
 
 # Python cache and compiled files

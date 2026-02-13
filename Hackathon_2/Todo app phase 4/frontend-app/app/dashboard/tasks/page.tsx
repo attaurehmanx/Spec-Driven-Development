@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Plus, Edit, Trash2, CheckCircle2, Circle } from 'lucide-react';
@@ -17,7 +17,7 @@ import { TaskModal } from '@/components/tasks/task-modal';
 import { DeleteConfirmationModal } from '@/components/tasks/delete-confirmation-modal';
 import { ToastContainer } from '@/components/ui/toast';
 
-const TaskListPageContent: React.FC = () => {
+const TaskList: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -444,18 +444,11 @@ const TaskListPageContent: React.FC = () => {
   );
 };
 
-// Wrapper component with Suspense boundary
 const TaskListPage: React.FC = () => {
   return (
-    <Suspense fallback={
-      <ProtectedRoute>
-        <div className="flex justify-center items-center h-64">
-          <LoadingSpinner label="Loading tasks..." />
-        </div>
-      </ProtectedRoute>
-    }>
-      <TaskListPageContent />
-    </Suspense>
+    <React.Suspense fallback={<div className="flex justify-center items-center h-64"><LoadingSpinner label="Loading..." /></div>}>
+      <TaskList />
+    </React.Suspense>
   );
 };
 

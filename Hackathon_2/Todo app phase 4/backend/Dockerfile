@@ -1,49 +1,46 @@
-# Use Python 3.11 for better performance and security
+# Use Python 3.11 slim image for smaller size
 FROM python:3.11-slim
-
-# Required Environment Variables (must be provided at runtime):
-# - DATABASE_URL: PostgreSQL connection string (e.g., postgresql://user:pass@host/db?sslmode=require)
-# - SECRET_KEY: Secret key for JWT token signing/verification
-#
-# Optional Environment Variables:
-# - GEMINI_API_KEY: Google Gemini API key for AI agent service
-# - GEMINI_MODEL: Gemini model name (default: gemini-2.5-flash)
-# - GEMINI_BASE_URL: Gemini API base URL
-# - ALGORITHM: JWT algorithm (default: HS256)
-# - ACCESS_TOKEN_EXPIRE_MINUTES: Token expiration time (default: 5)
-
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
-
-# Create non-root user for security
-RUN useradd -m -u 1000 user && \
-    mkdir -p /app && \
-    chown -R user:user /app
-
-# Switch to non-root user
-USER user
-ENV PATH="/home/user/.local/bin:$PATH"
 
 # Set working directory
 WORKDIR /app
 
-# Copy and install dependencies first (for better caching)
-COPY --chown=user ./requirements.txt requirements.txt
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Install system dependencies required for psycopg2 and other packages
+RUN apt-get update && apt-get install -y \
+    gcc \
+    postgresql-client \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements file
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY --chown=user . /app
+COPY . .
 
-# Expose port 8000 (FastAPI default)
-EXPOSE 8000
+# Create uploads directory for avatars
+RUN mkdir -p uploads/avatars
+
+# Create a non-root user to run the application
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Set environment variable for port
+ENV PORT=8001
+ENV HOST=0.0.0.0
+
+# Expose the port the app runs on
+EXPOSE 8001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health', timeout=5)" || exit 1
+    CMD curl -f http://localhost:8001/health || exit 1
 
 # Run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+CMD ["python", "run_server.py"]

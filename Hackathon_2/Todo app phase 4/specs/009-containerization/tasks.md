@@ -27,8 +27,8 @@ description: "Task list for containerization strategy implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 [P] Verify backend/.dockerignore exists and contains required exclusions (venv, __pycache__, .env, .git, tests)
-- [X] T002 Create frontend-app/.dockerignore with exclusions (node_modules, .next, .git, .env*.local, .vercel, .vscode, .idea, coverage, .DS_Store)
+- [ ] T001 [P] Verify backend/.dockerignore exists and contains required exclusions (venv, __pycache__, .env, .git, tests)
+- [ ] T002 Create frontend-app/.dockerignore with exclusions (node_modules, .next, .git, .env*.local, .vercel, .vscode, .idea, coverage, .DS_Store)
 
 ---
 
@@ -40,18 +40,18 @@ description: "Task list for containerization strategy implementation"
 
 ### Implementation for User Story 1
 
-- [X] T003 [US1] Read current backend/Dockerfile to understand existing implementation
-- [X] T004 [US1] Update backend/Dockerfile EXPOSE directive from port 7860 to port 8000 per FR-003
-- [X] T005 [US1] Update backend/Dockerfile CMD to use "main:app" instead of "app:app" (correct entry point)
-- [X] T006 [US1] Remove stateful directory creation (uploads/avatars) from backend/Dockerfile RUN command to comply with Principle X (Container immutability)
-- [X] T007 [US1] Update backend/Dockerfile HEALTHCHECK to check port 8000 instead of 7860
-- [X] T008 [US1] Add comment block to backend/Dockerfile documenting required environment variables (DATABASE_URL, GEMINI_API_KEY, BETTER_AUTH_SECRET, BETTER_AUTH_URL)
-- [X] T009 [US1] Build backend container image using "docker build -t todo-backend:latest ./backend"
-- [X] T010 [US1] Verify backend image size is under 500MB using "docker images" command (SC-003)
-- [X] T011 [US1] Run backend container locally with test environment variables and verify startup time under 10 seconds (SC-001)
-- [X] T012 [US1] Test backend container health check endpoint responds correctly at http://localhost:8000/health
-- [X] T013 [US1] Test backend container restart without data loss by stopping and restarting container
-- [X] T014 [US1] Verify backend container logs are accessible via "docker logs todo-backend" (SC-010)
+- [ ] T003 [US1] Read current backend/Dockerfile to understand existing implementation
+- [ ] T004 [US1] Update backend/Dockerfile EXPOSE directive from port 7860 to port 8000 per FR-003
+- [ ] T005 [US1] Update backend/Dockerfile CMD to use "main:app" instead of "app:app" (correct entry point)
+- [ ] T006 [US1] Remove stateful directory creation (uploads/avatars) from backend/Dockerfile RUN command to comply with Principle X (Container immutability)
+- [ ] T007 [US1] Update backend/Dockerfile HEALTHCHECK to check port 8000 instead of 7860
+- [ ] T008 [US1] Add comment block to backend/Dockerfile documenting required environment variables (DATABASE_URL, GEMINI_API_KEY, BETTER_AUTH_SECRET, BETTER_AUTH_URL)
+- [ ] T009 [US1] Build backend container image using "docker build -t todo-backend:latest ./backend"
+- [ ] T010 [US1] Verify backend image size is under 500MB using "docker images" command (SC-003)
+- [ ] T011 [US1] Run backend container locally with test environment variables and verify startup time under 10 seconds (SC-001)
+- [ ] T012 [US1] Test backend container health check endpoint responds correctly at http://localhost:8000/health
+- [ ] T013 [US1] Test backend container restart without data loss by stopping and restarting container
+- [ ] T014 [US1] Verify backend container logs are accessible via "docker logs todo-backend" (SC-010)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. Backend container builds, runs, and serves API on port 8000.
 
@@ -65,17 +65,17 @@ description: "Task list for containerization strategy implementation"
 
 ### Implementation for User Story 2
 
-- [X] T015 [P] [US2] Create frontend-app/Dockerfile with multi-stage build structure (Stage 1: node:18-alpine builder, Stage 2: nginx:alpine runtime)
-- [X] T016 [P] [US2] Create frontend-app/nginx.conf with static file serving, /api reverse proxy to http://todo-backend:8000, and /health endpoint
-- [X] T017 [US2] Implement Stage 1 (builder) in frontend-app/Dockerfile: set WORKDIR /app, copy package files, run npm ci, copy source, run npm run build
-- [X] T018 [US2] Implement Stage 2 (runtime) in frontend-app/Dockerfile: copy build artifacts from builder stage to /usr/share/nginx/html, copy nginx.conf, expose port 80
-- [X] T019 [US2] Build frontend container image using "docker build -t todo-frontend:latest ./frontend-app"
-- [X] T020 [US2] Verify frontend image size is under 100MB using "docker images" command (SC-004)
-- [X] T021 [US2] Run frontend container locally and verify startup time under 5 seconds (SC-002)
-- [X] T022 [US2] Test frontend container serves static files correctly at http://localhost:80
-- [X] T023 [US2] Test frontend container health check endpoint responds at http://localhost:80/health
-- [X] T024 [US2] Test frontend container API proxy by running both containers and verifying /api requests reach backend
-- [X] T025 [US2] Verify frontend container logs are accessible via "docker logs todo-frontend" (SC-010)
+- [ ] T015 [P] [US2] Create frontend-app/Dockerfile with multi-stage build structure (Stage 1: node:18-alpine builder, Stage 2: nginx:alpine runtime)
+- [ ] T016 [P] [US2] Create frontend-app/nginx.conf with static file serving, /api reverse proxy to http://todo-backend:8000, and /health endpoint
+- [ ] T017 [US2] Implement Stage 1 (builder) in frontend-app/Dockerfile: set WORKDIR /app, copy package files, run npm ci, copy source, run npm run build
+- [ ] T018 [US2] Implement Stage 2 (runtime) in frontend-app/Dockerfile: copy build artifacts from builder stage to /usr/share/nginx/html, copy nginx.conf, expose port 80
+- [ ] T019 [US2] Build frontend container image using "docker build -t todo-frontend:latest ./frontend-app"
+- [ ] T020 [US2] Verify frontend image size is under 100MB using "docker images" command (SC-004)
+- [ ] T021 [US2] Run frontend container locally and verify startup time under 5 seconds (SC-002)
+- [ ] T022 [US2] Test frontend container serves static files correctly at http://localhost:80
+- [ ] T023 [US2] Test frontend container health check endpoint responds at http://localhost:80/health
+- [ ] T024 [US2] Test frontend container API proxy by running both containers and verifying /api requests reach backend
+- [ ] T025 [US2] Verify frontend container logs are accessible via "docker logs todo-frontend" (SC-010)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently. Frontend container builds, runs, serves UI on port 80, and proxies API calls to backend.
 
@@ -89,15 +89,15 @@ description: "Task list for containerization strategy implementation"
 
 ### Implementation for User Story 3
 
-- [X] T026 [P] [US3] Measure backend container image size and document current size in bytes
-- [X] T027 [P] [US3] Measure frontend container image size and document current size in bytes
-- [X] T028 [P] [US3] Run security vulnerability scan on backend image using Docker Scout or Trivy
-- [X] T029 [P] [US3] Run security vulnerability scan on frontend image using Docker Scout or Trivy
-- [X] T030 [US3] Review security scan results and verify zero critical or high-severity vulnerabilities (SC-007)
-- [X] T031 [US3] If vulnerabilities found, update base images or dependencies and rebuild
-- [X] T032 [US3] Verify multi-stage build for frontend excludes build tools from final image by inspecting layers
-- [X] T033 [US3] Verify backend image uses minimal base (python:3.11-slim) and frontend uses minimal base (nginx:alpine)
-- [X] T034 [US3] Document final image sizes and confirm backend <500MB and frontend <100MB
+- [ ] T026 [P] [US3] Measure backend container image size and document current size in bytes
+- [ ] T027 [P] [US3] Measure frontend container image size and document current size in bytes
+- [ ] T028 [P] [US3] Run security vulnerability scan on backend image using Docker Scout or Trivy
+- [ ] T029 [P] [US3] Run security vulnerability scan on frontend image using Docker Scout or Trivy
+- [ ] T030 [US3] Review security scan results and verify zero critical or high-severity vulnerabilities (SC-007)
+- [ ] T031 [US3] If vulnerabilities found, update base images or dependencies and rebuild
+- [ ] T032 [US3] Verify multi-stage build for frontend excludes build tools from final image by inspecting layers
+- [ ] T033 [US3] Verify backend image uses minimal base (python:3.11-slim) and frontend uses minimal base (nginx:alpine)
+- [ ] T034 [US3] Document final image sizes and confirm backend <500MB and frontend <100MB
 
 **Checkpoint**: All user stories should now be independently functional with optimized, secure container images.
 
@@ -107,12 +107,12 @@ description: "Task list for containerization strategy implementation"
 
 **Purpose**: Verify both containers work together and meet all success criteria
 
-- [X] T035 [P] Run both backend and frontend containers together using docker run with --link
-- [X] T036 [P] Test complete user flow: access frontend, make API calls through proxy, verify backend processes requests
-- [X] T037 [P] Verify application functionality is identical between containerized and non-containerized deployments (SC-008)
-- [X] T038 [P] Test container restart scenario: stop both containers, restart, verify no data loss (SC-005)
-- [X] T039 [P] Measure combined build time for both images and verify under 5 minutes with caching (SC-006)
-- [X] T040 [P] Test containers with different runtimes (Docker, containerd if available) to verify OCI compliance (SC-009)
+- [ ] T035 [P] Run both backend and frontend containers together using docker run with --link
+- [ ] T036 [P] Test complete user flow: access frontend, make API calls through proxy, verify backend processes requests
+- [ ] T037 [P] Verify application functionality is identical between containerized and non-containerized deployments (SC-008)
+- [ ] T038 [P] Test container restart scenario: stop both containers, restart, verify no data loss (SC-005)
+- [ ] T039 [P] Measure combined build time for both images and verify under 5 minutes with caching (SC-006)
+- [ ] T040 [P] Test containers with different runtimes (Docker, containerd if available) to verify OCI compliance (SC-009)
 
 ---
 
@@ -120,13 +120,13 @@ description: "Task list for containerization strategy implementation"
 
 **Purpose**: Documentation, cleanup, and final verification
 
-- [X] T041 [P] Create or update backend/README.md with container build and run instructions
-- [X] T042 [P] Create or update frontend-app/README.md with container build and run instructions
-- [X] T043 [P] Verify all environment variables are documented in both Dockerfiles as comments
-- [X] T044 [P] Verify no secrets are hardcoded in Dockerfiles by inspecting image layers
-- [X] T045 [P] Test container startup with missing environment variables to verify graceful failure
-- [X] T046 Run final validation checklist from specs/009-containerization/quickstart.md
-- [X] T047 Document any deviations from plan or lessons learned in specs/009-containerization/IMPLEMENTATION_NOTES.md
+- [ ] T041 [P] Create or update backend/README.md with container build and run instructions
+- [ ] T042 [P] Create or update frontend-app/README.md with container build and run instructions
+- [ ] T043 [P] Verify all environment variables are documented in both Dockerfiles as comments
+- [ ] T044 [P] Verify no secrets are hardcoded in Dockerfiles by inspecting image layers
+- [ ] T045 [P] Test container startup with missing environment variables to verify graceful failure
+- [ ] T046 Run final validation checklist from specs/009-containerization/quickstart.md
+- [ ] T047 Document any deviations from plan or lessons learned in specs/009-containerization/IMPLEMENTATION_NOTES.md
 
 ---
 

@@ -26,7 +26,7 @@ from typing import List, Dict, Any, Optional, get_type_hints, get_origin, get_ar
 from datetime import datetime
 from dataclasses import dataclass, field
 
-# Import OpenAI SDK
+# Import OpenAI SDK with async support
 from openai import AsyncOpenAI, APIError, RateLimitError, APITimeoutError
 
 # Import agent configuration

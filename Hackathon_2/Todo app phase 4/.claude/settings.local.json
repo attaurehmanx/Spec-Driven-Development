@@ -24,16 +24,7 @@
       "Bash(ls -la backend/services/agent_service.py backend/config/agent_config.py backend/test_agent_*.py)",
       "Bash(bash:*)",
       "Bash(if:*)",
-      "Bash(then ls -d specs/*/)",
-      "Bash(powershell -ExecutionPolicy Bypass -File .specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks)",
-      "Bash(docker run:*)",
-      "Bash(docker build -t todo-backend:latest .)",
-      "Bash(docker images:*)",
-      "Bash(docker ps:*)",
-      "Bash(curl -s http://localhost/health)",
-      "Bash(docker stop:*)",
-      "Bash(docker rm todo-frontend)",
-      "Bash(docker build -t todo-frontend:latest .)"
+      "Bash(then ls -d specs/*/)"
     ]
   }
 }
