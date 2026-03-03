@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-management-backend
+  namespace: default
+  labels:
+    app: task-management
+    component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: task-management
+      component: backend
+  template:
+    metadata:
+      labels:
+        app: task-management
+        component: backend
+      annotations:
+        # Dapr annotations for sidecar injection
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "task-management-api"
+        dapr.io/app-port: "8001"
+        dapr.io/log-level: "info"
+        dapr.io/enable-profiling: "false"
+    spec:
+      containers:
+      - name: backend
+        image: task-management-backend:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8001
+          name: http
+          protocol: TCP
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: database-url
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "redpanda-0.redpanda.default.svc.cluster.local:9092"
+        - name: GEMINI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: gemini-api-key
+        - name: BETTER_AUTH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: auth-secret
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: secret-key
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 10
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: task-management-backend
+  namespace: default
+spec:
+  selector:
+    app: task-management
+    component: backend
+  ports:
+  - port: 8001
+    targetPort: 8001
+    nodePort: 30081  # Fixed port for Minikube external access
+    protocol: TCP
+    name: http
+  type: NodePort  # Use NodePort for Minikube, LoadBalancer for cloud

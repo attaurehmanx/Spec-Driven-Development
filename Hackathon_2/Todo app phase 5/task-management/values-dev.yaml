@@ -1,0 +1,123 @@
+# Development values with real environment variables
+# Use: helm install task-management . -f values-dev.yaml
+
+frontend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: task-management-frontend
+    pullPolicy: Never  # Use local images
+    tag: "latest"
+  service:
+    type: NodePort
+    port: 3000
+    nodePort: 30080
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  env:
+    # Client-side URLs (accessible from browser)
+    - name: NEXT_PUBLIC_BETTER_AUTH_URL
+      value: "http://localhost:30080"
+    - name: NEXT_PUBLIC_BACKEND_URL
+      value: "http://localhost:30081"
+    - name: NEXT_PUBLIC_API_BASE_URL
+      value: "http://localhost:30081/api"
+    # Server-side URLs (internal Kubernetes service names)
+    - name: BACKEND_URL
+      value: "http://task-management-backend:8001"
+    - name: API_BASE_URL
+      value: "http://task-management-backend:8001/api"
+    - name: NODE_ENV
+      value: "development"
+  secrets:
+    # Real secret from frontend-app/.env
+    betterAuthSecret: "your-super-secret-jwt-key-here-make-it-long-and-random"
+
+backend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: task-management-backend
+    pullPolicy: Never  # Use local images
+    tag: "latest"
+  service:
+    type: NodePort
+    port: 8001
+    nodePort: 30081
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  env:
+    # Database Configuration - Choose one:
+    # Option 1: Use local PostgreSQL in Kubernetes (default for dev)
+    - name: DATABASE_URL
+      value: "postgresql://taskuser:taskpass123@postgres:5432/taskdb"
+    # Option 2: Use Neon PostgreSQL (cloud) - uncomment to use
+    # - name: DATABASE_URL
+    #   value: "postgresql://neondb_owner:npg_UnmYjF5c7Sdo@ep-tiny-sea-a4v0nlab-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    # JWT Authentication
+    - name: ALGORITHM
+      value: "HS256"
+    - name: ACCESS_TOKEN_EXPIRE_MINUTES
+      value: "30"
+    # AI/LLM Configuration (Gemini)
+    - name: GEMINI_MODEL
+      value: "gemini-2.5-flash"
+    - name: GEMINI_BASE_URL
+      value: "https://generativelanguage.googleapis.com/v1beta/openai/"
+    # Agent Configuration
+    - name: AGENT_MAX_ITERATIONS
+      value: "15"
+    - name: AGENT_TEMPERATURE
+      value: "1.0"
+    - name: AGENT_MAX_TOKENS
+      value: "1000"
+    - name: AGENT_TIMEOUT
+      value: "30"
+    # Application Settings
+    - name: APP_ENV
+      value: "development"
+    - name: LOG_LEVEL
+      value: "DEBUG"
+  secrets:
+    # Real secrets from backend/.env
+    secretKey: "your-secret-key-here-change-this-to-a-random-string"
+    geminiApiKey: "AIzaSyAYfqw4SfGSXCyQyI8k2QChms_TYlGPXcs"
+
+database:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: postgres
+    pullPolicy: IfNotPresent
+    tag: "15-alpine"
+  service:
+    type: ClusterIP
+    port: 5432
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  env:
+    - name: POSTGRES_DB
+      value: "taskdb"
+    - name: POSTGRES_USER
+      value: "taskuser"
+    - name: POSTGRES_PASSWORD
+      value: "taskpass123"
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: "standard"

@@ -1,0 +1,194 @@
+# Production Configuration for Oracle OKE
+# Full HA and persistence enabled
+
+# Backend Application Configuration
+backend:
+  replicaCount: 3
+  image:
+    repository: task-management-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  service:
+    type: ClusterIP
+    port: 8001
+
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: api.taskmanagement.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: task-management-tls
+        hosts:
+          - api.taskmanagement.example.com
+
+# Frontend Application Configuration
+frontend:
+  replicaCount: 3
+  image:
+    repository: task-management-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: taskmanagement.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: task-management-frontend-tls
+        hosts:
+          - taskmanagement.example.com
+
+  # Environment variables for Next.js (Production)
+  env:
+    # Client-side (baked into bundle at build time)
+    NEXT_PUBLIC_BACKEND_URL: "https://api.taskmanagement.example.com"
+    NEXT_PUBLIC_API_BASE_URL: "https://api.taskmanagement.example.com/api"
+    NEXT_PUBLIC_BETTER_AUTH_URL: "https://taskmanagement.example.com"
+    # Server-side (for Next.js SSR)
+    BACKEND_URL: "http://task-management-backend:8001"
+    API_BASE_URL: "http://task-management-backend:8001/api"
+
+# Redpanda Configuration (Production)
+redpanda:
+  enabled: true
+
+  statefulset:
+    replicas: 3
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+  storage:
+    persistentVolume:
+      enabled: true
+      size: 10Gi
+      storageClass: standard  # Change to your OKE storage class
+
+  config:
+    cluster:
+      auto_create_topics_enabled: true
+    tunable:
+      log_segment_size: 268435456  # 256MB
+      group_topic_partitions: 3
+      default_topic_replications: 3
+
+  external:
+    enabled: false  # Enable if you need external access
+
+  auth:
+    sasl:
+      enabled: true  # Enable SASL authentication for production
+      mechanism: SCRAM-SHA-256
+
+  tls:
+    enabled: true  # Enable TLS for production
+
+# Dapr Configuration
+dapr:
+  enabled: true
+  ha:
+    enabled: true
+    replicaCount: 3
+  mtls:
+    enabled: true  # Enable mTLS for production
+
+  # Dapr control plane resources
+  operator:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+
+  placement:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+
+  sidecar:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+
+# Monitoring Configuration
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+  grafana:
+    enabled: true
+  loki:
+    enabled: true
+
+# Secrets (should be managed via external secret management)
+secrets:
+  # These should be created separately using kubectl or external secret manager
+  # kubectl create secret generic api-secrets \
+  #   --from-literal=gemini-api-key=YOUR_KEY \
+  #   --from-literal=auth-secret=YOUR_SECRET \
+  #   --from-literal=database-url=YOUR_DB_URL
+  existingSecret: api-secrets

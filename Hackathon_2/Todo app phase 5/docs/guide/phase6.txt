@@ -1,0 +1,244 @@
+Here's a complete step-by-step guide for infrastructure setup in WSL:                                                 
+  Phase 6 Infrastructure Setup - Complete Guide (WSL)                                                                   
+  Prerequisites (Check First)
+
+  # Open WSL terminal and verify installations
+  docker --version
+  kubectl version --client
+  minikube version
+  helm version
+  dapr version  # If not installed: wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - |
+  /bin/bash
+
+  Step 1: Start Minikube Cluster
+
+  # Delete any existing cluster
+  minikube delete
+
+  # Start fresh cluster with adequate resources
+  minikube start --memory=3600mb --cpus=2 --disk-size=20g --driver=docker
+
+  # Verify cluster is running
+  minikube status
+  kubectl cluster-info
+  kubectl get nodes
+
+  Step 2: Install Redpanda (Kafka-compatible Message Broker)
+
+  # Add Redpanda Helm repository
+  helm repo add redpanda https://charts.redpanda.com
+  helm repo update
+
+  # Install Redpanda with proper memory allocation
+  helm install redpanda redpanda/redpanda \
+    --set statefulset.replicas=1 \
+    --set resources.memory.container.max=2Gi \
+    --set resources.memory.redpanda.memory=1Gi \
+    --set resources.memory.redpanda.reserveMemory=256Mi \
+    --set storage.persistentVolume.enabled=false \
+    --set tls.enabled=false \
+    --set external.enabled=false \
+    --set auth.sasl.enabled=false
+
+  # Wait for Redpanda to be ready (may take 3-5 minutes)
+  kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=redpanda --timeout=300s
+
+  # Verify Redpanda is running
+  kubectl get pods -l app.kubernetes.io/name=redpanda
+
+  Step 3: Create Kafka Topic
+
+  # Create tasks.reminder topic
+  kubectl exec redpanda-0 -- rpk topic create tasks.reminder --partitions 3 --replicas 1
+
+  # Verify topic was created
+  kubectl exec redpanda-0 -- rpk topic list
+
+  Step 4: Install Dapr on Kubernetes
+
+  # Initialize Dapr on Kubernetes (without HA and mTLS for development)
+  dapr init -k --enable-ha=false --enable-mtls=false
+
+  # Wait for Dapr control plane to be ready
+  kubectl wait --for=condition=ready pod -l app=dapr-operator -n dapr-system --timeout=300s
+
+  # Verify Dapr is running
+  dapr status -k
+
+  Step 5: Deploy Dapr Components
+
+  # Navigate to project directory
+  cd /mnt/z/phase\ v
+
+  # Apply Kafka pub/sub component
+  kubectl apply -f helm/templates/dapr-components/kafka-pubsub.yaml
+
+  # Apply PostgreSQL state component
+  kubectl apply -f helm/templates/dapr-components/postgres-state.yaml
+
+  # Verify components are created
+  kubectl get components
+
+  Step 6: Build and Load Backend Image into Minikube
+
+  # If you built the image in Windows, you need to save and load it
+  # In Windows PowerShell/CMD:
+  # docker save task-management-backend:latest -o backend-image.tar
+
+  # In WSL, load the image into Minikube
+  minikube image load task-management-backend:latest
+  # OR if you have the tar file:
+  # minikube image load backend-image.tar
+
+  # Verify image is loaded
+  minikube image ls | grep task-management
+
+  Step 7: Create Kubernetes Secrets
+
+  # Create secrets for API keys (replace with your actual values)
+  kubectl create secret generic api-secrets \
+    --from-literal=gemini-api-key=YOUR_GEMINI_API_KEY \
+    --from-literal=auth-secret=YOUR_AUTH_SECRET \
+    --from-literal=database-url=YOUR_DATABASE_URL
+
+  # Verify secret was created
+  kubectl get secrets
+
+  Step 8: Deploy Backend with Dapr Sidecar
+
+  # Apply backend deployment
+  kubectl apply -f helm/templates/backend-deployment.yaml
+
+  # Wait for deployment to be ready
+  kubectl wait --for=condition=available deployment/task-management-backend --timeout=300s
+
+  # Verify Dapr sidecar is injected (should show 2/2 containers)
+  kubectl get pods -l app=task-management
+
+  Step 9: Verify Reminder System
+
+  # Check backend logs
+  kubectl logs -l app=task-management -c backend --tail=50
+
+  # Check Dapr sidecar logs
+  kubectl logs -l app=task-management -c daprd --tail=50
+
+  # Check APScheduler is running
+  kubectl logs -l app=task-management -c backend | grep "APScheduler started"
+
+  # Check reminder job execution
+  kubectl logs -l app=task-management -c backend | grep "reminder"
+
+  Step 10: Test Reminder Publishing
+
+  # Port-forward to access backend API
+  kubectl port-forward svc/task-management-backend 8001:8001 &
+
+  # Create a task with due date (1 hour from now)
+  curl -X POST http://localhost:8001/api/tasks \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+    -d '{
+      "title": "Test Reminder Task",
+      "description": "This task should trigger a reminder",
+      "priority": "high",
+      "due_date": "2026-02-17T15:00:00Z",
+      "completed": false
+    }'
+
+  # Wait 5 minutes for reminder job to run
+  # Check logs for reminder event
+  kubectl logs -l app=task-management -c backend | grep "Published reminder"
+
+  Step 11: Monitor Kafka Topics
+
+  # Consume messages from tasks.reminder topic
+  kubectl exec -it redpanda-0 -- rpk topic consume tasks.reminder
+
+  # You should see reminder events in JSON format
+
+  Troubleshooting Commands
+
+  # If Redpanda fails to start
+  kubectl describe pod redpanda-0
+  kubectl logs redpanda-0 -c redpanda
+
+  # If backend fails to start
+  kubectl describe pod -l app=task-management
+  kubectl logs -l app=task-management -c backend
+  kubectl logs -l app=task-management -c daprd
+
+  # Check all resources
+  kubectl get all
+  kubectl get components
+  kubectl get secrets
+
+  Cleanup (When Done)
+
+  # Delete backend deployment
+  kubectl delete -f helm/templates/backend-deployment.yaml
+
+  # Delete Dapr components
+  kubectl delete -f helm/templates/dapr-components/
+
+  # Uninstall Dapr
+  dapr uninstall -k
+
+  # Uninstall Redpanda
+  helm uninstall redpanda
+
+  # Stop Minikube
+  minikube stop
+
+  # Delete Minikube cluster (optional)
+  minikube delete
+
+  This guide assumes you'll run everything in WSL. The key difference from Windows is that WSL has better Docker
+  integration with Minikube and more reliable networking.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+What happens if you shut down or restart your laptop
+
+Minikube cluster will stop – all Kubernetes pods will stop.
+
+Running containers on your local Docker engine will also stop.
+
+Images are safe – your loaded Docker images (backend:latest, frontend-app:latest, Redpanda, etc.) are saved locally and will not be lost.
+
+Dapr and Kubernetes deployments are not lost – but pods will need to restart when Minikube starts again.
+
+2️⃣ After restarting
+
+Start Minikube again:
+
+minikube start
+
+
+Check pods status:
+
+kubectl get pods
+
+
+Some pods may be in Pending initially while Minikube spins up.
+
+Minikube already has your images, so Kubernetes pods can start without reloading images.
+
+If needed, check Dapr:
+
+dapr status -k
+kubectl get components
+
+
+✅ Bottom line: You can safely turn off your laptop. After restart, you just need to start Minikube again and your cluster will recover. No work or images will be lost.

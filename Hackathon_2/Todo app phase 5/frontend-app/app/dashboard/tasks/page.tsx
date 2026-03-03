@@ -1,0 +1,550 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { Plus, Edit, Trash2, CheckCircle2, Circle } from 'lucide-react';
+import ProtectedRoute from '@/components/auth/protected-route';
+import { Button } from '@/components/ui/button';
+import LoadingSpinner from '@/components/ui/loading-spinner';
+import ErrorMessage from '@/components/ui/error-message';
+import { Task, PriorityLevel, RecurringPattern } from '@/types';
+import useAuth from '@/hooks/use-auth';
+import { taskService } from '@/lib/api/task-service';
+import { useTaskRefresh } from '@/hooks/use-task-refresh';
+import { EmptyStateIllustration } from '@/components/ui/empty-state-illustration';
+import { TaskModal } from '@/components/tasks/task-modal';
+import { DeleteConfirmationModal } from '@/components/tasks/delete-confirmation-modal';
+import { TaskFilters } from '@/components/tasks/task-filters';
+import { TaskSearch } from '@/components/tasks/task-search';
+import { ToastContainer } from '@/components/ui/toast';
+
+const TaskList: React.FC = () => {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Filter states
+  const [priorityFilters, setPriorityFilters] = useState<PriorityLevel[]>([]);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'pending'>('all');
+  const [tagFilters, setTagFilters] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState<string>('created_at');
+
+  // Modal states
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+  // Toast states
+  const [toasts, setToasts] = useState<Array<{ id: string; type: 'success' | 'error' | 'warning' | 'info'; message: string }>>([]);
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user } = useAuth();
+
+  // Load sort preference from localStorage on mount
+  useEffect(() => {
+    const savedSort = localStorage.getItem('taskSortPreference');
+    if (savedSort) {
+      setSortBy(savedSort);
+    }
+  }, []);
+
+  // Save sort preference to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('taskSortPreference', sortBy);
+  }, [sortBy]);
+
+  // Check for create query parameter and open modal
+  useEffect(() => {
+    if (searchParams.get('create') === 'true') {
+      setIsCreateModalOpen(true);
+      // Clean up URL
+      router.replace('/dashboard/tasks');
+    }
+  }, [searchParams, router]);
+
+  // Toast helper functions
+  const addToast = (type: 'success' | 'error' | 'warning' | 'info', message: string) => {
+    const id = Date.now().toString();
+    setToasts((prev) => [...prev, { id, type, message }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  };
+
+  // Fetch tasks function with filters
+  const fetchTasks = async () => {
+    if (!user?.id) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Build filters object
+      const filters: any = {};
+
+      // Add priority filter if any priorities are selected
+      if (priorityFilters.length > 0) {
+        filters.priority = priorityFilters.join(',');
+      }
+
+      // Add status filter
+      if (statusFilter === 'completed') {
+        filters.status = 'done';
+      } else if (statusFilter === 'pending') {
+        filters.status = 'not_done';
+      }
+
+      // Add tags filter
+      if (tagFilters.length > 0) {
+        filters.tags = tagFilters.join(',');
+      }
+
+      // Add search query
+      if (searchQuery.trim()) {
+        filters.search = searchQuery.trim();
+      }
+
+      // Add sort parameter
+      if (sortBy) {
+        filters.sort = sortBy;
+      }
+
+      const response = await taskService.getUserTasks(user.id, filters);
+      setTasks(response.tasks);
+    } catch (err: any) {
+      console.error('Error fetching tasks:', err);
+      setError(err.message || 'Failed to load tasks');
+      addToast('error', 'Failed to load tasks');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch available tags
+  const fetchAvailableTags = async () => {
+    if (!user?.id) return;
+
+    try {
+      // For now, extract unique tags from all tasks
+      // In a real implementation, this would be a separate API call
+      const response = await taskService.getUserTasks(user.id);
+      const uniqueTags = new Set<string>();
+      response.tasks.forEach(task => {
+        if (task.tags) {
+          task.tags.forEach(tag => uniqueTags.add(tag));
+        }
+      });
+      setAvailableTags(Array.from(uniqueTags).sort());
+    } catch (err) {
+      console.error('Error fetching tags:', err);
+    }
+  };
+
+  // Handle filter changes
+  const handleFilterChange = (filters: {
+    priority: PriorityLevel[];
+    status: 'all' | 'completed' | 'pending';
+    tags: string[];
+  }) => {
+    setPriorityFilters(filters.priority);
+    setStatusFilter(filters.status);
+    setTagFilters(filters.tags);
+  };
+
+  // Handle search changes
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  // Initial fetch on mount
+  useEffect(() => {
+    fetchTasks();
+    fetchAvailableTags();
+  }, [user]);
+
+  // Refetch tasks when filters change
+  useEffect(() => {
+    if (user?.id) {
+      fetchTasks();
+    }
+  }, [priorityFilters, statusFilter, tagFilters, searchQuery, sortBy]);
+
+  // Listen for task updates from chat interface
+  useTaskRefresh(() => {
+    fetchTasks();
+    fetchAvailableTags();
+  });
+
+  // Tasks are already filtered server-side, so just use them directly
+  const filteredTasks = tasks;
+
+  const completedCount = tasks.filter(task => task.completed).length;
+  const pendingCount = tasks.filter(task => !task.completed).length;
+
+  // Handle create task
+  const handleCreateTask = async (data: {
+    title: string;
+    description: string;
+    completed: boolean;
+    priority?: PriorityLevel;
+    tags?: string[];
+    recurring?: RecurringPattern;
+    due_date?: string;
+  }) => {
+    if (!user?.id) return;
+
+    try {
+      await taskService.createTask(user.id, data);
+      await fetchTasks();
+      addToast('success', 'Task created successfully!');
+    } catch (err: any) {
+      console.error('Error creating task:', err);
+      addToast('error', err.message || 'Failed to create task');
+      throw err;
+    }
+  };
+
+  // Handle edit task
+  const handleEditTask = async (data: {
+    title: string;
+    description: string;
+    completed: boolean;
+    priority?: PriorityLevel;
+    tags?: string[];
+    recurring?: RecurringPattern;
+    due_date?: string;
+  }) => {
+    if (!user?.id || !selectedTask) return;
+
+    try {
+      await taskService.updateTask(user.id, selectedTask.id, data);
+      await fetchTasks();
+      addToast('success', 'Task updated successfully!');
+    } catch (err: any) {
+      console.error('Error updating task:', err);
+      addToast('error', err.message || 'Failed to update task');
+      throw err;
+    }
+  };
+
+  // Handle delete task
+  const handleDeleteTask = async () => {
+    if (!user?.id || !selectedTask) return;
+
+    try {
+      await taskService.deleteTask(user.id, selectedTask.id);
+      await fetchTasks();
+      addToast('success', 'Task deleted successfully!');
+    } catch (err: any) {
+      console.error('Error deleting task:', err);
+      addToast('error', err.message || 'Failed to delete task');
+      throw err;
+    }
+  };
+
+  // Handle toggle completion
+  const handleToggleComplete = async (task: Task) => {
+    if (!user?.id) return;
+
+    try {
+      await taskService.updateTask(user.id, task.id, {
+        title: task.title,
+        description: task.description || '',
+        completed: !task.completed,
+      });
+      await fetchTasks();
+      addToast('success', task.completed ? 'Task marked as pending' : 'Task completed!');
+    } catch (err: any) {
+      console.error('Error toggling task:', err);
+      addToast('error', 'Failed to update task');
+    }
+  };
+
+  if (loading) {
+    return (
+      <ProtectedRoute>
+        <div className="flex justify-center items-center h-64">
+          <LoadingSpinner label="Loading tasks..." />
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
+  return (
+    <ProtectedRoute>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-3 pb-24 md:pb-6"
+      >
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col md:flex-row md:justify-between md:items-center gap-3"
+        >
+          <div>
+            <h1 className="text-3xl font-extrabold bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 dark:from-purple-400 dark:via-pink-400 dark:to-cyan-400 bg-clip-text text-transparent">
+              My Tasks
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-0.5">
+              Manage your tasks efficiently
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-2">
+            {/* Search */}
+            <TaskSearch
+              onSearchChange={handleSearchChange}
+              placeholder="Search tasks..."
+            />
+
+            {/* Sort Dropdown */}
+            <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-4 py-2.5 rounded-xl border-2 border-gray-300 dark:border-gray-600 glass text-gray-700 dark:text-gray-300 font-bold focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all appearance-none cursor-pointer pr-10"
+              >
+                <option value="created_at">Sort: Newest First</option>
+                <option value="priority">Sort: Priority</option>
+                <option value="due_date">Sort: Due Date</option>
+                <option value="title">Sort: Alphabetical</option>
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Advanced Filters */}
+            <TaskFilters
+              onFilterChange={handleFilterChange}
+              taskCount={filteredTasks.length}
+              availableTags={availableTags}
+            />
+
+            {/* Create Button */}
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 shadow-lg shadow-purple-500/50 hover:shadow-xl hover:shadow-purple-500/60 transition-all duration-300 hover:scale-105 hover:-translate-y-1"
+            >
+              <Plus className="w-4 h-4" />
+              Create Task
+            </button>
+          </div>
+        </motion.div>
+
+        {error && <ErrorMessage message={error} />}
+
+        {/* Empty State */}
+        {filteredTasks.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="relative overflow-hidden rounded-3xl glass-strong border-2 border-white/30 dark:border-white/20 shadow-2xl"
+          >
+            {/* Gradient background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-cyan-500/10"></div>
+
+            <div className="relative flex flex-col items-center justify-center py-12 px-8">
+              <EmptyStateIllustration />
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-center mt-6"
+              >
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1.5">
+                  {statusFilter === 'all' && priorityFilters.length === 0
+                    ? 'No tasks yet'
+                    : 'No tasks match your filters'}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-4 max-w-md">
+                  {statusFilter === 'all' && priorityFilters.length === 0
+                    ? 'Get started by creating your first task and boost your productivity!'
+                    : 'Try adjusting your filters or create a new task!'}
+                </p>
+
+                <Button
+                  onClick={() => setIsCreateModalOpen(true)}
+                  size="lg"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-lg shadow-purple-500/50"
+                >
+                  <Plus className="w-5 h-5" />
+                  Create Task
+                </Button>
+              </motion.div>
+            </div>
+          </motion.div>
+        ) : (
+          /* Task Grid */
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          >
+            {filteredTasks.map((task, index) => (
+              <motion.div
+                key={task.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                whileHover={{ y: -5, scale: 1.02 }}
+                className={`relative overflow-hidden rounded-2xl glass-strong border-2 shadow-xl transition-all duration-300 ${
+                  task.completed
+                    ? 'border-green-500/50 shadow-green-500/20'
+                    : 'border-purple-500/50 shadow-purple-500/20'
+                }`}
+              >
+                {/* Gradient background */}
+                <div className={`absolute inset-0 ${
+                  task.completed
+                    ? 'bg-gradient-to-br from-green-500/10 to-emerald-500/10'
+                    : 'bg-gradient-to-br from-purple-500/10 to-pink-500/10'
+                }`}></div>
+
+                <div className="relative p-4">
+                  {/* Header with status indicator */}
+                  <div className="flex items-start justify-between mb-3">
+                    <button
+                      onClick={() => handleToggleComplete(task)}
+                      className="flex-shrink-0 mr-3 transition-transform hover:scale-110"
+                    >
+                      {task.completed ? (
+                        <CheckCircle2 className="w-6 h-6 text-green-500" />
+                      ) : (
+                        <Circle className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+                      )}
+                    </button>
+
+                    <div className="flex-1 min-w-0">
+                      <h3 className={`font-bold text-base mb-0.5 ${
+                        task.completed
+                          ? 'line-through text-gray-500 dark:text-gray-400'
+                          : 'text-gray-900 dark:text-gray-100'
+                      }`}>
+                        {task.title}
+                      </h3>
+
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${
+                        task.completed
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                          : 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300'
+                      }`}>
+                        {task.completed ? 'Completed' : 'Pending'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  {task.description && (
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">
+                      {task.description}
+                    </p>
+                  )}
+
+                  {/* Metadata */}
+                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-3">
+                    <span>Updated: {new Date(task.updated_at).toLocaleDateString()}</span>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedTask(task);
+                        setIsEditModalOpen(true);
+                      }}
+                      className="flex-1 hover:bg-purple-100 dark:hover:bg-purple-500 hover:text-purple-700 dark:hover:text-white"
+                    >
+                      <Edit className="w-4 h-4" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedTask(task);
+                        setIsDeleteModalOpen(true);
+                      }}
+                      className="flex-1"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+
+        {/* Show total tasks count when filtered */}
+        {(statusFilter !== 'all' || priorityFilters.length > 0) && filteredTasks.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center text-sm text-gray-500 dark:text-gray-400"
+          >
+            Showing {filteredTasks.length} filtered task{filteredTasks.length !== 1 ? 's' : ''}
+          </motion.div>
+        )}
+      </motion.div>
+
+      {/* Modals */}
+      <TaskModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSubmit={handleCreateTask}
+        mode="create"
+      />
+
+      <TaskModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedTask(null);
+        }}
+        onSubmit={handleEditTask}
+        task={selectedTask}
+        mode="edit"
+      />
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedTask(null);
+        }}
+        onConfirm={handleDeleteTask}
+        taskTitle={selectedTask?.title || ''}
+      />
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onClose={removeToast} />
+    </ProtectedRoute>
+  );
+};
+
+const TaskListPage: React.FC = () => {
+  return (
+    <React.Suspense fallback={<div className="flex justify-center items-center h-64"><LoadingSpinner label="Loading..." /></div>}>
+      <TaskList />
+    </React.Suspense>
+  );
+};
+
+export default TaskListPage;

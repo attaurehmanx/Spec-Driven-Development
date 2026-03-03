@@ -1,0 +1,104 @@
+I can see from the output:
+  - Minikube started successfully with v1.38.0
+  - Kubernetes v1.35.0 is running
+  - Both images are loaded:
+    - docker.io/library/task-management-frontend:latest
+    - docker.io/library/task-management-backend:latest
+
+  There was a warning about "Failing to connect to https://registry.k8s.io/" but it's not critical - Minikube still
+  started successfully.
+
+  Now they need to continue with the deployment steps:
+  1. Install Redpanda (Kafka message broker)
+  2. Create Kafka topic
+  3. Install Dapr
+  4. Create Kubernetes secrets
+  5. Deploy Dapr components
+  6. Deploy backend
+  7. Deploy frontend
+  8. Verify and access
+
+  The user is ready to proceed. I should provide the next steps clearly and concisely.
+
+
+  Perfect! ✅ Minikube is running and both images are loaded!
+
+  🎯 Next Steps: Deploy Everything
+
+  1. Install Redpanda (Kafka)
+
+  helm repo add redpanda https://charts.redpanda.com
+  helm repo update
+
+  helm install redpanda redpanda/redpanda `
+    --set statefulset.replicas=1 `
+    --set resources.memory.container.max=2Gi `
+    --set resources.memory.redpanda.memory=1Gi `
+    --set resources.memory.redpanda.reserveMemory=256Mi `
+    --set storage.persistentVolume.enabled=false `
+    --set tls.enabled=false `
+    --set external.enabled=false `
+    --set auth.sasl.enabled=false
+
+  # Wait for Redpanda (takes 3-5 minutes)
+  kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=redpanda --timeout=300s
+
+  ---
+  2. Create Kafka Topic
+
+  kubectl exec redpanda-0 -- rpk topic create tasks.reminder --partitions 3 --replicas 1
+  kubectl exec redpanda-0 -- rpk topic list
+
+  ---
+  3. Install Dapr
+
+  dapr init -k --enable-ha=false --enable-mtls=false
+  kubectl wait --for=condition=ready pod -l app=dapr-operator -n dapr-system --timeout=300s
+  dapr status -k
+
+  ---
+  4. Create Secrets
+
+  kubectl create secret generic api-secrets `
+    --from-literal=gemini-api-key=AIzaSyAYfqw4SfGSXCyQyI8k2QChms_TYlGPXcs `
+    --from-literal=auth-secret=your-super-secret-jwt-key-here-make-it-long-and-random `
+    --from-literal=database-url="postgresql://neondb_owner:npg_UnmYjF5c7Sdo@ep-tiny-sea-a4v0nlab-pooler.us-east-1.aws.ne
+  on.tech/neondb?sslmode=require"
+
+  ---
+  5. Deploy Dapr Components
+
+  Set-Location "E:\New folder (2)"
+  kubectl apply -f helm/templates/dapr-components/kafka-pubsub.yaml
+  kubectl apply -f helm/templates/dapr-components/postgres-state.yaml
+  kubectl get components
+
+  ---
+  6. Deploy Backend & Frontend
+
+  kubectl apply -f helm/templates/backend-deployment.yaml
+  kubectl apply -f helm/templates/frontend-deployment.yaml
+
+  kubectl wait --for=condition=available deployment/task-management-backend --timeout=300s
+  kubectl wait --for=condition=available deployment/task-management-frontend --timeout=300s
+
+  ---
+  7. Verify & Access
+
+  kubectl get pods
+  kubectl get svc
+
+  # Access:
+  # Frontend: http://192.168.49.2:30080
+  # Backend: http://192.168.49.2:30081/health
+
+  ---
+  Start with Step 1 (Redpanda)! 🚀
+
+
+
+# 1. Start Minikube (cluster starts fresh/empty)
+  minikube start
+
+  # 2. Images are STILL there! (no need to reload)
+  minikube image ls | Select-String "task-management"

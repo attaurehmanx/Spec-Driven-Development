@@ -1,0 +1,75 @@
+Hmmm… can't reach this page
+  192.168.49.2 took too long to respond
+  Try:
+
+  Search the web for 192 168 49 2
+  Checking the connection
+  Checking the proxy and the firewall
+  ERR_CONNECTION_TIMED_OUT
+
+
+
+● Ah, I see the issue! This is a common Windows + Minikube networking problem. The Minikube IP isn't directly accessible
+   from Windows browsers in some configurations.
+
+  🔧 Solution: Use Minikube Service Command
+
+  Instead of accessing via IP directly, use Minikube's built-in service access:
+
+  Option 1: Minikube Service (Recommended for Windows)
+
+  # Open frontend in browser automatically
+  minikube service task-management-frontend
+
+  # Open backend in browser automatically
+  minikube service task-management-backend
+
+  This will automatically open the correct URL in your browser!
+
+  ---
+  Option 2: Get the Correct URL
+
+  # Get the frontend URL
+  minikube service task-management-frontend --url
+
+  # Get the backend URL
+  minikube service task-management-backend --url
+
+  Then copy the URLs and paste them in your browser.
+
+  ---
+  Option 3: Use Minikube Tunnel (Alternative)
+
+  Open a new terminal as Administrator and run:
+
+  minikube tunnel
+
+  Keep this terminal open, then try accessing:
+  - Frontend: http://192.168.49.2:30080
+  - Backend: http://192.168.49.2:30081/health
+
+  ---
+  Option 4: Port-Forward (Fallback)
+
+  If the above don't work, use port-forward to access via localhost:
+
+  # Terminal 1: Forward frontend
+  kubectl port-forward deployment/task-management-frontend 3000:3000
+
+  # Terminal 2: Forward backend
+  kubectl port-forward deployment/task-management-backend 8001:8001
+
+  Then access:
+  - Frontend: http://localhost:3000
+  - Backend: http://localhost:8001/health
+
+  ---
+  🎯 Quick Fix - Try This First
+
+  Run this command and it will open your frontend automatically:
+
+  minikube service task-management-frontend
+
+  This should open your browser with the correct URL and your application should load!
+
+  Let me know which option works for you!

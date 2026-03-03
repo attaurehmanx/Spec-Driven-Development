@@ -1,0 +1,120 @@
+# Production values with real environment variables
+# Use: helm install task-management . -f values-prod.yaml
+
+frontend:
+  enabled: true
+  replicaCount: 2  # Multiple replicas for HA
+  image:
+    repository: task-management-frontend
+    pullPolicy: Always
+    tag: "v1.0.0"
+  service:
+    type: LoadBalancer  # Use LoadBalancer in production
+    port: 3000
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  env:
+    # Client-side URLs (accessible from browser)
+    - name: NEXT_PUBLIC_BETTER_AUTH_URL
+      value: "https://app.yourdomain.com"
+    - name: NEXT_PUBLIC_BACKEND_URL
+      value: "https://api.yourdomain.com"
+    - name: NEXT_PUBLIC_API_BASE_URL
+      value: "https://api.yourdomain.com/api"
+    # Server-side URLs (internal Kubernetes service names)
+    - name: BACKEND_URL
+      value: "http://task-management-backend:8001"
+    - name: API_BASE_URL
+      value: "http://task-management-backend:8001/api"
+    - name: NODE_ENV
+      value: "production"
+    - name: NEXT_TELEMETRY_DISABLED
+      value: "1"
+  secrets:
+    # Real secret from frontend-app/.env
+    betterAuthSecret: "your-super-secret-jwt-key-here-make-it-long-and-random"
+
+backend:
+  enabled: true
+  replicaCount: 3  # Multiple replicas for HA
+  image:
+    repository: task-management-backend
+    pullPolicy: Always
+    tag: "v1.0.0"
+  service:
+    type: LoadBalancer
+    port: 8001
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 1000m
+      memory: 1Gi
+  env:
+    # Database Configuration - Using Neon PostgreSQL (Cloud)
+    - name: DATABASE_URL
+      value: "postgresql://neondb_owner:npg_UnmYjF5c7Sdo@ep-tiny-sea-a4v0nlab-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    # JWT Authentication
+    - name: ALGORITHM
+      value: "HS256"
+    - name: ACCESS_TOKEN_EXPIRE_MINUTES
+      value: "30"
+    # AI/LLM Configuration (Gemini)
+    - name: GEMINI_MODEL
+      value: "gemini-2.5-flash"
+    - name: GEMINI_BASE_URL
+      value: "https://generativelanguage.googleapis.com/v1beta/openai/"
+    # Agent Configuration
+    - name: AGENT_MAX_ITERATIONS
+      value: "15"
+    - name: AGENT_TEMPERATURE
+      value: "1.0"
+    - name: AGENT_MAX_TOKENS
+      value: "1000"
+    - name: AGENT_TIMEOUT
+      value: "30"
+    # Application Settings
+    - name: APP_ENV
+      value: "production"
+    - name: LOG_LEVEL
+      value: "INFO"
+  secrets:
+    # Real secrets from backend/.env
+    secretKey: "your-secret-key-here-change-this-to-a-random-string"
+    geminiApiKey: "AIzaSyAYfqw4SfGSXCyQyI8k2QChms_TYlGPXcs"
+
+database:
+  # Disable in production - use managed PostgreSQL (RDS, Cloud SQL, etc.)
+  enabled: false
+  replicaCount: 1
+  image:
+    repository: postgres
+    pullPolicy: IfNotPresent
+    tag: "15-alpine"
+  service:
+    type: ClusterIP
+    port: 5432
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+  env:
+    - name: POSTGRES_DB
+      value: "taskdb_prod"
+    - name: POSTGRES_USER
+      value: "produser"
+    - name: POSTGRES_PASSWORD
+      value: "CHANGE_ME_SECURE_PASSWORD"
+  persistence:
+    enabled: true
+    size: 20Gi
+    storageClass: "fast-ssd"  # Use faster storage in production

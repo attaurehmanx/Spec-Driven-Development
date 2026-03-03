@@ -1,0 +1,94 @@
+# Development Configuration for Local Minikube
+# Optimized for resource constraints (≤3.6GB RAM)
+
+# Backend Application Configuration
+backend:
+  replicaCount: 1
+  image:
+    repository: task-management-backend
+    tag: latest
+    pullPolicy: Never  # Use local image in Minikube
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+  service:
+    type: NodePort
+    port: 8001
+    nodePort: 30081  # Fixed port for Minikube access
+
+# Frontend Application Configuration
+frontend:
+  replicaCount: 1
+  image:
+    repository: task-management-frontend
+    tag: latest
+    pullPolicy: Never  # Use local image in Minikube
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+  service:
+    type: NodePort
+    port: 3000
+    nodePort: 30080  # Fixed port for Minikube access
+
+  # Environment variables for Next.js
+  env:
+    # Client-side (baked into bundle at build time)
+    NEXT_PUBLIC_BACKEND_URL: "http://192.168.49.2:30081"
+    NEXT_PUBLIC_API_BASE_URL: "http://192.168.49.2:30081/api"
+    NEXT_PUBLIC_BETTER_AUTH_URL: "http://192.168.49.2:30080"
+    # Server-side (for Next.js SSR)
+    BACKEND_URL: "http://task-management-backend:8001"
+    API_BASE_URL: "http://task-management-backend:8001/api"
+
+# Redpanda Minimal Configuration for Development
+# Single replica, no persistence, minimal resources
+redpanda:
+  enabled: true
+  replicaCount: 1
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+  storage:
+    persistentVolume:
+      enabled: false
+    hostPath: /tmp/redpanda-data
+
+  statefulset:
+    replicas: 1
+
+  config:
+    cluster:
+      auto_create_topics_enabled: true
+    tunable:
+      log_segment_size: 134217728
+      group_topic_partitions: 3
+      default_topic_replications: 1
+
+  external:
+    enabled: false
+
+  auth:
+    sasl:
+      enabled: false
+
+  tls:
+    enabled: false

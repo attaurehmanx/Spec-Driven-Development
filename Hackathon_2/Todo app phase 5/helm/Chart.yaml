@@ -1,0 +1,25 @@
+apiVersion: v2
+name: task-management
+description: Multi-user task management application with Dapr and Redpanda
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+keywords:
+  - task-management
+  - dapr
+  - redpanda
+  - kafka
+  - fastapi
+  - nextjs
+
+maintainers:
+  - name: Task Management Team
+    email: team@example.com
+
+# Dependencies (if using Redpanda as a subchart)
+# dependencies:
+#   - name: redpanda
+#     version: "5.x.x"
+#     repository: "https://charts.redpanda.com"
+#     condition: redpanda.enabled

@@ -1,0 +1,22 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: postgres-state
+  namespace: default
+spec:
+  type: state.postgresql
+  version: v1
+  metadata:
+  # PostgreSQL connection string
+  - name: connectionString
+    value: "host=postgres.default.svc.cluster.local user=postgres password=postgres port=5432 dbname=taskdb sslmode=disable"
+  # Table configuration
+  - name: tableName
+    value: "dapr_state"
+  - name: metadataTableName
+    value: "dapr_metadata"
+  # Performance tuning
+  - name: timeout
+    value: "20"
+  - name: cleanupIntervalInSeconds
+    value: "3600"
