@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+"""
+Social Media Summary Generator Skill
+Usage: /social-summary [daily|weekly]
+"""
+
+import sys
+import subprocess
+from pathlib import Path
+
+# Get the project root directory
+project_root = Path(__file__).parent.parent.parent
+
+# Parse arguments
+period = sys.argv[1] if len(sys.argv) > 1 else 'daily'
+
+# Validate period
+if period not in ['daily', 'weekly']:
+    print(f"Invalid period: {period}. Use 'daily' or 'weekly'")
+    sys.exit(1)
+
+# Run the summary generator
+vault_path = project_root / 'AI_Employee_Vault' / 'vault'
+script_path = project_root / 'AI_Employee_Vault' / 'scripts' / 'social_summary_generator.py'
+
+print(f"Generating {period} social media summary...")
+
+result = subprocess.run(
+    ['python', str(script_path), str(vault_path), period],
+    capture_output=True,
+    text=True
+)
+
+print(result.stdout)
+if result.stderr:
+    print(result.stderr)
+
+sys.exit(result.returncode)

@@ -1,0 +1,47 @@
+# Environment and credentials
+.env
+*.env
+credentials.json
+token.json
+*token*.json
+mcp-config.json
+*.key
+*.pem
+*.pickle
+*.state.json
+
+# Session data
+*_session/
+whatsapp_session/
+**/*_session/
+session_data/
+
+# Logs
+*.log
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# Node
+node_modules/
+package-lock.json
+
+# Obsidian
+.obsidian/workspace*
+.obsidian/cache
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+
+# Sensitive data
+AI_Employee_Vault/vault/Logs/*.json
+AI_Employee_Vault/vault/Accounting/*.csv
