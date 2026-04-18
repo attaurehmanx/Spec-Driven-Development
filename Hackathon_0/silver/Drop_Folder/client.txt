@@ -1,0 +1,19 @@
+## Email Content
+
+Hi there,
+
+We're looking to implement AI automation for our customer service department (50+ agents). Need a proposal by end of week covering:
+
+1. Scope of automation (email, chat, phone)
+2. Integration with our existing Salesforce CRM
+3. Pricing for 50-100 concurrent users
+4. Implementation timeline
+5. ROI projections
+
+Budget range: $50K-$150K annually.
+
+Can you send a detailed proposal by Friday?
+
+Best regards,
+John Smith
+CTO, TechCorp Industries

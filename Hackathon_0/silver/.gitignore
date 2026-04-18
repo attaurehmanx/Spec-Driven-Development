@@ -1,0 +1,76 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+venv/
+env/
+ENV/
+
+# Credentials & Secrets
+credentials.json
+token.json
+token_sender.json
+.env
+*.key
+*.pem
+
+# Sessions
+whatsapp_session/
+*_session/
+
+# Logs
+*.log
+watcher.log
+orchestrator.log
+
+# Configuration (may contain sensitive data)
+orchestrator_config.json
+.linkedin_state.json
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Obsidian
+.obsidian/
+.trash/
+
+# Test files
+test_*.md
+TEST_*.md
+DEMO_*.md
+
+# Temporary
+tmp/
+temp/
+*.tmp
