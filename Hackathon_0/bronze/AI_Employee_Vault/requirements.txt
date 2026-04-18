@@ -1,0 +1,11 @@
+# AI Employee - Python Dependencies
+
+# Core dependencies
+watchdog>=3.0.0  # File system monitoring
+
+# Optional dependencies for future expansion
+# google-auth>=2.16.0  # Gmail API authentication
+# google-auth-oauthlib>=1.0.0  # Gmail OAuth
+# google-auth-httplib2>=0.1.0  # Gmail HTTP
+# google-api-python-client>=2.80.0  # Gmail API client
+# playwright>=1.40.0  # Browser automation for WhatsApp

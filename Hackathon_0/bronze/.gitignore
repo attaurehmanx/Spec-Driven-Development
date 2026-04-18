@@ -1,0 +1,103 @@
+# Git Ignore File for AI Employee Project
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+ENV/
+env/
+
+# Logs
+*.log
+watcher.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Credentials and secrets
+credentials.json
+token.json
+*.key
+*.pem
+secrets/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Obsidian
+.obsidian/
+.trash/
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+
+# WhatsApp session data (if added later)
+whatsapp_session/
+.wwebjs_auth/
+
+# Browser automation data
+playwright-state/
+browser-data/
+
+# Backup files
+*.bak
+*.backup
+
+# Test outputs
+test_output/
+*.test
+
+# Large files that shouldn't be committed
+*.pdf
+*.zip
+*.tar.gz
+*.rar
+
+# Keep folder structure but ignore contents of certain folders
+Logs/*
+!Logs/.gitkeep
+Done/*
+!Done/.gitkeep
+Inbox/*
+!Inbox/.gitkeep
+
+# Node modules (if MCP servers added later)
+node_modules/
+package-lock.json
+
+# Database files (if added later)
+*.db
+*.sqlite
+*.sqlite3
