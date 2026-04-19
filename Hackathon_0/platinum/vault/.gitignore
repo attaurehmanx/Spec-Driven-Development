@@ -1,0 +1,52 @@
+# Secrets - NEVER SYNC
+.env
+*.env
+secrets/
+tokens/
+credentials/
+*.key
+*.pem
+
+# Sessions - NEVER SYNC
+*.session
+*.session-*
+whatsapp_session/
+session_data/
+
+# Logs - Local only
+logs/
+*.log
+sync-logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.sublime-*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
