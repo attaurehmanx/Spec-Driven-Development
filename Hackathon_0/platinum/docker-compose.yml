@@ -1,0 +1,127 @@
+version: '3.1'
+
+# Platinum Tier: Always-On Cloud + Local Executive AI Employee
+# Docker Compose for Odoo + Cloud Agent + Vault Sync
+
+services:
+  # ===========================================
+  # ODOO ERP (Accounting System)
+  # ===========================================
+  odoo:
+    image: odoo:17.0
+    container_name: platinum-odoo
+    restart: unless-stopped
+    ports:
+      - "8069:8069"
+    depends_on:
+      - db
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=${ODOO_DB_PASSWORD:-odoo}
+    volumes:
+      - platinum-odoo-web-data:/var/lib/odoo
+      - ./odoo/addons:/mnt/extra-addons
+      - ./odoo/logs:/var/log/odoo
+    command: --workers=2 --logfile=/var/log/odoo/odoo.log
+    networks:
+      - platinum-network
+
+  # PostgreSQL Database for Odoo
+  db:
+    image: postgres:15
+    container_name: platinum-odoo-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=${ODOO_DB_PASSWORD:-odoo}
+    volumes:
+      - platinum-odoo-db-data:/var/lib/postgresql/data
+    networks:
+      - platinum-network
+
+  # ===========================================
+  # CLOUD AGENT (24/7 Always-On)
+  # ===========================================
+  cloud-agent:
+    build:
+      context: .
+      dockerfile: docker/cloud-agent/Dockerfile
+    container_name: platinum-cloud-agent
+    restart: unless-stopped
+    depends_on:
+      - odoo
+    environment:
+      - ENVIRONMENT=cloud
+      - AGENT_ROLE=drafts_only
+      - VAULT_PATH=/app/vault
+      - GIT_REPO_URL=${GIT_REPO_URL:-}
+      - GIT_EMAIL=${GIT_EMAIL:-ai-employee@local}
+      - GMAIL_CLIENT_ID=${GMAIL_CLIENT_ID:-}
+      - GMAIL_CLIENT_SECRET=${GMAIL_CLIENT_SECRET:-}
+      - GMAIL_REFRESH_TOKEN=${GMAIL_REFRESH_TOKEN:-}
+      - ODOO_URL=http://odoo:8069
+      - ODOO_DB=odoo
+      - ODOO_USERNAME=${ODOO_USERNAME:-admin}
+      - ODOO_PASSWORD=${ODOO_PASSWORD:-admin}
+      - FACEBOOK_ACCESS_TOKEN=${FACEBOOK_ACCESS_TOKEN:-}
+      - FACEBOOK_PAGE_ID=${FACEBOOK_PAGE_ID:-}
+      - INSTAGRAM_ACCESS_TOKEN=${INSTAGRAM_ACCESS_TOKEN:-}
+      - INSTAGRAM_ACCOUNT_ID=${INSTAGRAM_ACCOUNT_ID:-}
+      - TWITTER_BEARER_TOKEN=${TWITTER_BEARER_TOKEN:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - platinum-vault:/app/vault
+      - ./cloud:/app/cloud:ro
+      - ./shared:/app/shared:ro
+      - ./logs/cloud-agent:/app/logs
+    command: python cloud/agents/cloud_agent_fixed.py
+    networks:
+      - platinum-network
+
+  # ===========================================
+  # VAULT SYNC (Git-based Cloud ↔ Local)
+  # ===========================================
+  vault-sync:
+    build:
+      context: .
+      dockerfile: docker/vault-sync/Dockerfile
+    container_name: platinum-vault-sync
+    restart: unless-stopped
+    depends_on:
+      - cloud-agent
+    environment:
+      - GIT_REPO_URL=${GIT_REPO_URL:-}
+      - GIT_EMAIL=${GIT_EMAIL:-ai-employee@local}
+      - SYNC_INTERVAL=${SYNC_INTERVAL:-300}
+      - VAULT_PATH=/app/vault
+    volumes:
+      - platinum-vault:/app/vault
+      - ./logs/vault-sync:/app/logs
+    command: python -c "from shared.vault_sync.git_sync import SyncScheduler, VaultSync; import time; sync = VaultSync('/app/vault', '${GIT_REPO_URL:-}'); sync.initialize(); scheduler = SyncScheduler(sync, ${SYNC_INTERVAL:-300}); scheduler.start()"
+    networks:
+      - platinum-network
+
+# ===========================================
+# VOLUMES
+# ===========================================
+volumes:
+  platinum-odoo-web-data:
+    driver: local
+  platinum-odoo-db-data:
+    driver: local
+  platinum-vault:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./vault
+
+# ===========================================
+# NETWORKS
+# ===========================================
+networks:
+  platinum-network:
+    driver: bridge

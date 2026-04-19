@@ -1,0 +1,261 @@
+#cloud-config
+# Cloud-init script for Oracle Cloud/AWS VM setup
+
+package_update: true
+packages:
+  - docker.io
+  - docker-compose
+  - python3
+  - python3-pip
+  - python3-venv
+  - git
+  - nginx
+  - certbot
+  - python3-certbot-nginx
+  - curl
+  - wget
+  - htop
+  - jq
+  - mailutils
+
+# Create ai-employee user
+users:
+  - name: ai-employee
+    groups: sudo, docker
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - <YOUR_SSH_PUBLIC_KEY>
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+
+# Write Docker Compose configuration
+write_files:
+  # Docker Compose for Cloud services
+  - path: /opt/ai-employee/docker-compose.yml
+    content: |
+      version: '3.8'
+      services:
+        cloud-agent:
+          build: ./docker/cloud-agent
+          container_name: cloud-agent
+          restart: always
+          volumes:
+            - ./vault:/app/vault
+            - ./logs:/app/logs
+            - ./cloud:/app/cloud
+          environment:
+            - ENVIRONMENT=cloud
+            - AGENT_ROLE=drafts_only
+            - GMAIL_CLIENT_ID=${GMAIL_CLIENT_ID}
+            - GMAIL_CLIENT_SECRET=${GMAIL_CLIENT_SECRET}
+            - GMAIL_REFRESH_TOKEN=${GMAIL_REFRESH_TOKEN}
+            - FACEBOOK_ACCESS_TOKEN=${FACEBOOK_ACCESS_TOKEN}
+            - INSTAGRAM_ACCESS_TOKEN=${INSTAGRAM_ACCESS_TOKEN}
+            - TWITTER_BEARER_TOKEN=${TWITTER_BEARER_TOKEN}
+            - ODOO_URL=${ODOO_URL}
+            - ODOO_DB=${ODOO_DB}
+            - ODOO_USERNAME=${ODOO_USERNAME}
+            - ODOO_PASSWORD=${ODOO_PASSWORD}
+          networks:
+            - ai-network
+          healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+            interval: 60s
+            timeout: 10s
+            retries: 3
+
+        odoo:
+          image: odoo:17.0
+          container_name: odoo
+          restart: always
+          user: root
+          ports:
+            - "127.0.0.1:8069:8069"
+          environment:
+            - HOST=db
+            - USER=odoo
+            - PASSWORD=${ODOO_DB_PASSWORD}
+          volumes:
+            - odoo-data:/var/lib/odoo
+            - ./odoo/config:/etc/odoo
+            - ./odoo/addons:/mnt/extra-addons
+          depends_on:
+            - db
+          networks:
+            - ai-network
+
+        db:
+          image: postgres:15
+          container_name: odoo-db
+          restart: always
+          environment:
+            - POSTGRES_DB=odoo
+            - POSTGRES_USER=odoo
+            - POSTGRES_PASSWORD=${ODOO_DB_PASSWORD}
+          volumes:
+            - postgres-data:/var/lib/postgresql/data
+            - ./odoo/backups:/backups
+          networks:
+            - ai-network
+
+        health-monitor:
+          image: nginx:alpine
+          container_name: health-monitor
+          restart: always
+          ports:
+            - "80:80"
+            - "443:443"
+          volumes:
+            - ./nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./ssl:/etc/nginx/ssl:ro
+            - ./health-check.py:/usr/share/nginx/html/health.py:ro
+          depends_on:
+            - cloud-agent
+          networks:
+            - ai-network
+
+        vault-sync:
+          build: ./docker/vault-sync
+          container_name: vault-sync
+          restart: always
+          volumes:
+            - ./vault:/app/vault
+            - ./sync-logs:/app/logs
+          environment:
+            - GIT_REPO_URL=${GIT_REPO_URL}
+            - GIT_EMAIL=${GIT_EMAIL}
+            - SYNC_INTERVAL=300
+          depends_on:
+            - cloud-agent
+          networks:
+            - ai-network
+
+    owner: ai-employee:ai-employee
+    permissions: '0644'
+
+  # Nginx configuration
+  - path: /opt/ai-employee/nginx.conf
+    content: |
+      events {
+          worker_connections 1024;
+      }
+
+      http {
+          server {
+              listen 80;
+              server_name _;
+              
+              location /.well-known/acme-challenge/ {
+                  root /var/www/certbot;
+              }
+              
+              location /health {
+                  alias /usr/share/nginx/html/health.py;
+                  default_type application/json;
+              }
+              
+              location / {
+                  return 301 https://$server_name$request_uri;
+              }
+          }
+
+          server {
+              listen 443 ssl http2;
+              server_name _;
+
+              ssl_certificate /etc/nginx/ssl/fullchain.pem;
+              ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+
+              ssl_protocols TLSv1.2 TLSv1.3;
+              ssl_ciphers HIGH:!aNULL:!MD5;
+              ssl_prefer_server_ciphers on;
+
+              location /health {
+                  alias /usr/share/nginx/html/health.py;
+                  default_type application/json;
+              }
+
+              location / {
+                  return 404;
+              }
+          }
+      }
+    owner: ai-employee:ai-employee
+    permissions: '0644'
+
+  # Health check endpoint
+  - path: /opt/ai-employee/health-check.py
+    content: |
+      {
+        "status": "healthy",
+        "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+        "service": "platinum-cloud-agent"
+      }
+    owner: ai-employee:ai-employee
+    permissions: '0644'
+
+  # Systemd service for cloud agent
+  - path: /etc/systemd/system/cloud-agent.service
+    content: |
+      [Unit]
+      Description=Platinum AI Employee Cloud Agent
+      After=docker.service
+      Requires=docker.service
+
+      [Service]
+      Type=oneshot
+      RemainAfterExit=yes
+      WorkingDirectory=/opt/ai-employee
+      ExecStart=/usr/bin/docker-compose up -d
+      ExecStop=/usr/bin/docker-compose down
+      TimeoutStartSec=0
+
+      [Install]
+      WantedBy=multi-user.target
+    permissions: '0644'
+
+# Run commands on first boot
+runcmd:
+  # Enable and start Docker
+  - systemctl enable docker
+  - systemctl start docker
+  
+  # Setup ai-employee directory
+  - mkdir -p /opt/ai-employee/{vault,logs,odoo/config,odoo/addons,odoo/backups,ssl}
+  - chown -R ai-employee:ai-employee /opt/ai-employee
+  
+  # Setup SSL directory
+  - mkdir -p /var/www/certbot
+  
+  # Copy Docker Compose to proper location
+  - cp /opt/ai-employee/docker-compose.yml /opt/ai-employee/docker-compose.yml.backup
+  
+  # Enable and start cloud agent service
+  - systemctl daemon-reload
+  - systemctl enable cloud-agent
+  - systemctl start cloud-agent
+  
+  # Setup log rotation
+  - cat > /etc/logrotate.d/ai-employee << 'LOGROTATE'
+/opt/ai-employee/logs/*.log {
+    daily
+    rotate 30
+    compress
+    delaycompress
+    notifempty
+    create 0644 ai-employee ai-employee
+}
+LOGROTATE
+
+  # Setup automatic updates
+  - apt-get install -y unattended-upgrades
+  - dpkg-reconfigure -plow unattended-upgrades
+  
+  # Setup backup cron job
+  - echo "0 2 * * * /opt/ai-employee/scripts/backup-odoo.sh" | crontab -u ai-employee -
+  
+  # Final status
+  - echo "=== Cloud VM Setup Complete ===" >> /var/log/cloud-init-output.log
+  - echo "Access the health endpoint at: http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)/health" >> /var/log/cloud-init-output.log
+
+# Final message
+final_message: "Cloud VM setup complete after $UPTIME seconds"

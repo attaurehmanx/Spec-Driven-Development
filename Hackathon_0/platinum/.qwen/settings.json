@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(E:\\hackathon-0\\Gold\\AI_Employee_Vault\\mcp_servers\\social_media\\instagram/**)",
+      "Read(E:\\hackathon-0\\Gold/**)"
+    ]
+  },
+  "$version": 3
+}
