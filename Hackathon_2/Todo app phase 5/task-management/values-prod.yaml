@@ -57,6 +57,9 @@ backend:
       cpu: 1000m
       memory: 1Gi
   env:
+    # Database Configuration - Using Neon PostgreSQL (Cloud)
+    - name: DATABASE_URL
+      value: "postgresql://username:password@your-db-host/your-db-name?sslmode=require"
     # JWT Authentication
     - name: ALGORITHM
       value: "HS256"
@@ -84,6 +87,7 @@ backend:
   secrets:
     # Real secrets from backend/.env
     secretKey: "your-secret-key-here-change-this-to-a-random-string"
+    geminiApiKey: "your-gemini-api-key-here"
 
 database:
   # Disable in production - use managed PostgreSQL (RDS, Cloud SQL, etc.)
